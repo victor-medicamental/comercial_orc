@@ -18,7 +18,6 @@
   .eyebrow{color:var(--accent);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
   h1{font-size:29px;font-weight:700;margin:6px 0 4px}
   .sub{color:var(--muted);font-size:14px}
-  /* filtros */
   .filters{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:22px}
   .fgroup{display:flex;flex-direction:column;gap:6px}
   .fgroup label{font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
@@ -58,8 +57,17 @@
   .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
   .toolbar input{background:var(--card2);border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:7px 11px;font-size:13px;min-width:200px}
   .toolbar .small{font-size:12px;color:var(--muted)}
+  .insights{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .ins{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:15px}
+  .ins.alert{border-left-color:var(--neg)}.ins.good{border-left-color:var(--pos)}.ins.watch{border-left-color:var(--warn)}
+  .ins h4{font-size:14px;margin-bottom:6px;display:flex;gap:8px;align-items:center}
+  .ins p{font-size:13.2px;color:#cdd8e3}
+  .tag{font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:5px;text-transform:uppercase}
+  .tag.neg{background:rgba(255,93,93,.18);color:var(--neg)}
+  .tag.pos{background:rgba(46,204,113,.18);color:var(--pos)}
+  .tag.warn{background:rgba(255,176,32,.18);color:var(--warn)}
   footer{margin-top:38px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
-  @media(max-width:820px){.grid2,.grid2-13{grid-template-columns:1fr}.scope{margin-left:0;text-align:left}}
+  @media(max-width:820px){.grid2,.grid2-13,.insights{grid-template-columns:1fr}.scope{margin-left:0;text-align:left}}
 </style>
 </head>
 <body>
@@ -70,7 +78,6 @@
     <div class="sub">Navegue por empresa e UF · visão de marcas geral e por filial · 20 dias úteis · fonte: aba ORCTO LAB</div>
   </header>
 
-  <!-- FILTROS -->
   <div class="filters">
     <div class="fgroup">
       <label>Empresa</label>
@@ -86,10 +93,8 @@
     </div>
   </div>
 
-  <!-- KPIs -->
   <div class="kpis" id="kpis"></div>
 
-  <!-- Filiais / UF -->
   <h2 id="hBreak">Atingimento por filial</h2>
   <div class="grid2-13">
     <div class="card">
@@ -104,7 +109,6 @@
     </div>
   </div>
 
-  <!-- Marcas -->
   <h2>Marcas <span id="hMarcaScope" style="color:var(--muted);font-weight:400;font-size:14px"></span></h2>
   <div class="grid2">
     <div class="card">
@@ -137,8 +141,11 @@
     </div>
   </div>
 
+  <h2>Insights <span id="hInsScope" style="color:var(--muted);font-weight:400;font-size:14px"></span></h2>
+  <div class="insights" id="insights"></div>
+
   <footer>
-    Fonte: ORÇAMENTO VENDAS FARMA 2026 — Revisão Abril, aba ORCTO LAB (MAI / MAI REALIZ. / MAI % ATING.). Dados de maio/2026 · 20 dias úteis · 755 registros marca×empresa×UF · gerado em 16/06/2026.
+    Fonte: ORÇAMENTO VENDAS FARMA 2026 — Revisão Abril, aba ORCTO LAB (MAI / MAI REALIZ. / MAI % ATING.). Dados de maio/2026 · 20 dias úteis · 755 registros marca×empresa×UF · insights recalculados conforme o filtro · gerado em 16/06/2026.
   </footer>
 </div>
 
@@ -148,6 +155,7 @@ const EMP_ORDER=['SP','GO','RJ','PR','DF'];
 const EMP_NAME={SP:'FARMA SP',GO:'FARMA GO',RJ:'FARMA RJ',PR:'FARMA PR',DF:'FARMA DF'};
 const BRL=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
 const MI=v=>(v/1e6).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+const PC=v=>(v*100).toFixed(1)+'%';
 Chart.defaults.color='#93a4b5';
 Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";
 Chart.defaults.borderColor='rgba(255,255,255,.06)';
@@ -157,7 +165,6 @@ const pillCls=v=>v>=1?'pos':(v>=0.9?'warn':'neg');
 let fEmp='Todas', fUF='Todas', sortK='real', sortDir=-1, busca='';
 let charts={};
 
-// ---- chips empresa ----
 const chipsEmp=document.getElementById('chipsEmp');
 ['Todas',...EMP_ORDER].forEach(e=>{
   const c=document.createElement('div');c.className='chip'+(e==='Todas'?' active':'');
@@ -179,12 +186,10 @@ function buildUFchips(){
     box.appendChild(c);
   });
 }
-
 function filtered(){
   return DATA.filter(d=>(fEmp==='Todas'||d.e===fEmp)&&(fUF==='Todas'||d.uf===fUF));
 }
 function sum(arr,k){return arr.reduce((s,d)=>s+d[k],0);}
-
 function aggBy(arr,key){
   const m={};
   arr.forEach(d=>{const k=d[key];if(!m[k])m[k]={meta:0,real:0};m[k].meta+=d.meta;m[k].real+=d.real;});
@@ -199,21 +204,18 @@ function render(){
   const at=meta?real/meta:0,gap=real-meta;
   const nMarcas=new Set(rows.map(d=>d.m)).size;
 
-  // scope text
   let scope = fEmp==='Todas'?'Todas as empresas':EMP_NAME[fEmp];
   if(fUF!=='Todas') scope+=' · UF '+fUF;
   document.getElementById('scopeTxt').textContent=scope;
   document.getElementById('hMarcaScope').textContent='— '+scope;
 
-  // KPIs
   document.getElementById('kpis').innerHTML=`
     <div class="kpi"><div class="lbl">Meta</div><div class="val">R$ ${MI(meta)} mi</div><div class="delta">Orçamento do mês</div></div>
     <div class="kpi"><div class="lbl">Realizado</div><div class="val">R$ ${MI(real)} mi</div><div class="delta ${at>=1?'pos':'neg'}">${at>=1?'Acima':'Abaixo'} da meta</div></div>
     <div class="kpi"><div class="lbl">% Atingimento</div><div class="val ${pillCls(at)}">${(at*100).toFixed(1)}%</div><div class="delta ${at>=1?'pos':'neg'}">${at>=1?'▲':'▼'} ${Math.abs(at*100-100).toFixed(1)} p.p.</div></div>
-    <div class="kpi"><div class="lbl">Gap vs Meta</div><div class="val ${gap>=0?'pos':'neg'}">${gap>=0?'+':'−'}R$ ${MI(Math.abs(gap))} mi</div><div class="delta">${gap>=0?'Acima do orçado':'Faltou p/ meta'}</div></div>
+    <div class="kpi"><div class="lbl">Gap vs Meta</div><div class="val ${gap>=0?'pos':'neg'}">${gap>=0?'+':'-'}R$ ${MI(Math.abs(gap))} mi</div><div class="delta">${gap>=0?'Acima do orçado':'Faltou p/ meta'}</div></div>
     <div class="kpi"><div class="lbl">Marcas ativas</div><div class="val">${nMarcas}</div><div class="delta">no recorte atual</div></div>`;
 
-  // ---- breakdown (empresa ou UF) ----
   const byEmpView = fEmp==='Todas';
   document.getElementById('hBreak').textContent = byEmpView?'Atingimento por filial':'Atingimento por UF';
   document.getElementById('t1').textContent = byEmpView?'Meta × Realizado por filial':'Meta × Realizado por UF';
@@ -236,7 +238,6 @@ function render(){
     {data:ating,backgroundColor:ating.map(v=>atColor(v/100)),borderRadius:5}
   ],{legend:false,pct:true,refline:100});
 
-  // ---- marcas ----
   const gm=aggBy(rows,'m');
   let marcas=Object.entries(gm).map(([m,o])=>({m,meta:o.meta,real:o.real,gap:o.real-o.meta,at:o.meta?o.real/o.meta:0}));
   marcas.sort((a,b)=>b.real-a.real);
@@ -250,31 +251,87 @@ function render(){
   ],{legend:true,horizontal:true,unit:' mi'});
 
   drawTable(marcas,meta,real);
+  renderInsights({meta,real,at,gap,groups,byEmpView,marcas,scope});
+}
+
+function card(kind,tag,tagcls,title,body){
+  return `<div class="ins ${kind}"><h4><span class="tag ${tagcls}">${tag}</span> ${title}</h4><p>${body}</p></div>`;
+}
+
+function renderInsights({meta,real,at,gap,groups,byEmpView,marcas,scope}){
+  document.getElementById('hInsScope').textContent='— '+scope;
+  const out=[];
+  const unidade = byEmpView?'filial':'UF';
+
+  if(at>=1){
+    out.push(card('good','Resultado','pos',`${scope} superou a meta`,
+      `Realizado de <strong>R$ ${MI(real)} mi</strong> contra meta de <strong>R$ ${MI(meta)} mi</strong> — atingimento de <strong>${PC(at)}</strong> (R$ ${MI(gap)} mi acima do orçado).`));
+  }else{
+    out.push(card('alert','Resultado','neg',`${scope} ficou abaixo da meta`,
+      `Realizado de <strong>R$ ${MI(real)} mi</strong> contra meta de <strong>R$ ${MI(meta)} mi</strong> — atingimento de <strong>${PC(at)}</strong>, faltando <strong>R$ ${MI(Math.abs(gap))} mi</strong> para a meta.`));
+  }
+
+  const gs=groups.map(g=>({n:g.n,meta:g.meta,real:g.real,at:g.meta?g.real/g.meta:0,gap:g.real-g.meta}));
+  if(gs.length>1){
+    const worst=[...gs].sort((a,b)=>a.gap-b.gap)[0];
+    const best=[...gs].sort((a,b)=>b.at-a.at)[0];
+    const shareGap = (gap<0 && worst.gap<0) ? Math.min(100,Math.round(worst.gap/gap*100)) : null;
+    if(worst.gap<0){
+      out.push(card('alert','Maior ofensor','neg',`${unidade} ${worst.n} puxou o resultado para baixo`,
+        `Atingiu apenas <strong>${PC(worst.at)}</strong> da meta (gap de <strong>R$ ${MI(worst.gap)} mi</strong>)${shareGap?`, respondendo por <strong>~${shareGap}%</strong> de todo o déficit do recorte`:''}.`));
+    }
+    if(best.n!==worst.n){
+      const ok=best.at>=1;
+      out.push(card(ok?'good':'watch',ok?'Destaque':'Melhor',ok?'pos':'warn',`${unidade} ${best.n} foi o melhor desempenho`,
+        `Entregou <strong>${PC(best.at)}</strong> da meta${best.gap>=0?` (R$ ${MI(best.gap)} mi acima do orçado)`:''} — referência a replicar nas demais ${unidade==='filial'?'filiais':'UFs'}.`));
+    }
+  }
+
+  const FLOOR=200000;
+  const neg=marcas.filter(m=>m.meta>=FLOOR && m.gap<0).sort((a,b)=>a.gap-b.gap);
+  const posM=marcas.filter(m=>m.meta>=FLOOR && m.at>1).sort((a,b)=>b.gap-a.gap);
+  if(neg.length){
+    const w=neg[0];
+    out.push(card('alert','Marca crítica','neg',`${w.m} foi o maior ofensor por marca`,
+      `Atingiu <strong>${(w.at*100).toFixed(0)}%</strong> da meta (gap de <strong>R$ ${MI(w.gap)} mi</strong>) — principal alavanca de recuperação no recorte.`));
+  }
+  if(posM.length){
+    const b=posM[0];
+    out.push(card('good','Marca destaque','pos',`${b.m} superou a meta`,
+      `Atingiu <strong>${(b.at*100).toFixed(0)}%</strong> (R$ ${MI(b.gap)} mi acima do orçado), sustentando o realizado do recorte.`));
+  }
+
+  const top3=[...marcas].sort((a,b)=>b.real-a.real).slice(0,3);
+  const share3=real?top3.reduce((s,m)=>s+m.real,0)/real:0;
+  if(top3.length>=3){
+    out.push(card('watch','Concentração','warn',`As 3 maiores marcas concentram ${PC(share3)} do realizado`,
+      `${top3.map(t=>t.m).join(', ')} respondem por <strong>${PC(share3)}</strong> do faturamento do recorte — atenção à dependência dessas marcas.`));
+  }
+
+  document.getElementById('insights').innerHTML=out.join('');
 }
 
 function drawTable(marcas,meta,real){
   let list=marcas.filter(x=>x.m.toLowerCase().includes(busca.toLowerCase()));
-  list.sort((a,b)=>(a[sortK]>b[sortK]?1:-1)*sortDir);
   if(sortK==='m') list.sort((a,b)=>a.m.localeCompare(b.m)*sortDir);
+  else list.sort((a,b)=>(a[sortK]>b[sortK]?1:-1)*sortDir);
   document.getElementById('nMarcas').textContent=list.length+' marcas';
   document.getElementById('tabMarca').innerHTML=list.map(x=>`<tr>
     <td>${x.m}</td><td>${BRL(x.meta)}</td><td>${BRL(x.real)}</td>
-    <td class="${x.gap>=0?'pos':'neg'}">${x.gap>=0?'+':'−'}${BRL(Math.abs(x.gap))}</td>
+    <td class="${x.gap>=0?'pos':'neg'}">${x.gap>=0?'+':'-'}${BRL(Math.abs(x.gap))}</td>
     <td><span class="pill ${pillCls(x.at)}">${(x.at*100).toFixed(0)}%</span></td></tr>`).join('');
   const at=meta?real/meta:0;
   document.getElementById('tabMarcaFoot').innerHTML=`<tr><td>TOTAL (${list.length})</td>
     <td>${BRL(meta)}</td><td>${BRL(real)}</td>
-    <td class="${real-meta>=0?'pos':'neg'}">${real-meta>=0?'+':'−'}${BRL(Math.abs(real-meta))}</td>
+    <td class="${real-meta>=0?'pos':'neg'}">${real-meta>=0?'+':'-'}${BRL(Math.abs(real-meta))}</td>
     <td><span class="pill ${pillCls(at)}">${(at*100).toFixed(0)}%</span></td></tr>`;
 }
 
-// header sort
 document.querySelectorAll('thead th').forEach(th=>{
   th.onclick=()=>{const k=th.dataset.k;if(sortK===k)sortDir*=-1;else{sortK=k;sortDir=k==='m'?1:-1;}render();};
 });
 document.getElementById('buscaMarca').addEventListener('input',e=>{busca=e.target.value;render();});
 
-// chart helpers
 function drawBar(id,labels,datasets,opt){
   if(charts[id])charts[id].destroy();
   charts[id]=new Chart(document.getElementById(id),{type:'bar',data:{labels,datasets},
