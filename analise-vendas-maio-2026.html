@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análise de Maio 2026 — Meta x Realizado | Farma</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0f1620; --card:#18222e; --card2:#1f2c3a; --line:#2b3a4a;
+    --ink:#eef3f8; --muted:#93a4b5; --accent:#3ea6ff;
+    --meta:#5a6b7d; --real:#3ea6ff;
+    --pos:#2ecc71; --neg:#ff5d5d; --warn:#ffb020;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;padding:32px 18px 60px}
+  .wrap{max-width:1160px;margin:0 auto}
+  header{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:24px}
+  .eyebrow{color:var(--accent);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+  h1{font-size:30px;font-weight:700;margin:6px 0 4px}
+  .sub{color:var(--muted);font-size:14px}
+  h2{font-size:19px;font-weight:600;margin:38px 0 14px;display:flex;align-items:center;gap:10px}
+  h2::before{content:"";width:4px;height:20px;background:var(--accent);border-radius:3px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .kpi .lbl{color:var(--muted);font-size:12.5px;font-weight:500}
+  .kpi .val{font-size:25px;font-weight:700;margin-top:6px}
+  .kpi .delta{font-size:13px;font-weight:600;margin-top:4px}
+  .pos{color:var(--pos)} .neg{color:var(--neg)} .warn{color:var(--warn)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid2-13{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .card h3{font-size:15px;font-weight:600;margin-bottom:4px}
+  .card .cap{color:var(--muted);font-size:12.5px;margin-bottom:14px}
+  .chart-box{position:relative;height:300px}
+  .chart-box.tall{height:360px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  thead th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  tbody tr:hover{background:var(--card2)}
+  tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:none}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:12px;font-weight:700}
+  .pill.pos{background:rgba(46,204,113,.16);color:var(--pos)}
+  .pill.neg{background:rgba(255,93,93,.16);color:var(--neg)}
+  .pill.warn{background:rgba(255,176,32,.16);color:var(--warn)}
+  .insights{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .ins{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:16px}
+  .ins.alert{border-left-color:var(--neg)} .ins.good{border-left-color:var(--pos)} .ins.watch{border-left-color:var(--warn)}
+  .ins h4{font-size:14px;margin-bottom:6px;display:flex;gap:8px;align-items:center}
+  .ins p{font-size:13.3px;color:#cdd8e3}
+  .tag{font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:5px;text-transform:uppercase}
+  .tag.neg{background:rgba(255,93,93,.18);color:var(--neg)}
+  .tag.pos{background:rgba(46,204,113,.18);color:var(--pos)}
+  .tag.warn{background:rgba(255,176,32,.18);color:var(--warn)}
+  footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+  .note{background:rgba(62,166,255,.08);border:1px solid rgba(62,166,255,.25);border-radius:10px;padding:12px 14px;font-size:12.8px;color:#cdd8e3;margin-bottom:24px}
+  @media(max-width:820px){.grid2,.grid2-13,.insights{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Relatório Comercial — Farma 2026</div>
+    <h1>Análise de Maio — Meta × Realizado</h1>
+    <div class="sub">Atingimento de meta de maio/2026 · por filial e por marca · 20 dias úteis · gerado em 16/06/2026</div>
+  </header>
+
+  <div class="note">
+    <strong>Foco:</strong> esta análise considera <strong>somente maio</strong> — comparando a <strong>meta</strong> (orçamento), o <strong>realizado</strong> e o <strong>% de atingimento</strong>. Fonte: aba <em>ORCTO LAB</em> (colunas MAI / MAI REALIZ. / MAI % ATING.). Valores em R$.
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi">
+      <div class="lbl">Meta Maio</div>
+      <div class="val">R$ 48,94 mi</div>
+      <div class="delta">Orçamento do mês</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">Realizado Maio</div>
+      <div class="val">R$ 44,30 mi</div>
+      <div class="delta neg">Abaixo da meta</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">% Atingimento</div>
+      <div class="val warn">90,5%</div>
+      <div class="delta neg">▼ 9,5 p.p. da meta</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">Gap vs Meta</div>
+      <div class="val neg">−R$ 4,64 mi</div>
+      <div class="delta">Faltou para a meta</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">VMD realizado</div>
+      <div class="val">R$ 2,11 mi</div>
+      <div class="delta warn">86,2% da meta de VMD</div>
+    </div>
+  </div>
+
+  <!-- Filiais -->
+  <h2>Atingimento por filial</h2>
+  <div class="grid2-13">
+    <div class="card">
+      <h3>Meta × Realizado por filial</h3>
+      <div class="cap">R$ milhões — maio/2026</div>
+      <div class="chart-box"><canvas id="cFilial"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>% de atingimento por filial</h3>
+      <div class="cap">linha vermelha = meta (100%)</div>
+      <div class="chart-box"><canvas id="cAting"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <table>
+      <thead><tr><th>Filial</th><th>Meta</th><th>Realizado</th><th>Gap (R$)</th><th>% Ating.</th></tr></thead>
+      <tbody id="tabFilial"></tbody>
+      <tfoot id="tabFilialFoot"></tfoot>
+    </table>
+  </div>
+
+  <!-- Gap waterfall -->
+  <h2>Onde a meta foi perdida</h2>
+  <div class="card">
+    <h3>Contribuição de cada filial para o gap de −R$ 4,64 mi</h3>
+    <div class="cap">Realizado − Meta, por filial (R$ mi)</div>
+    <div class="chart-box"><canvas id="cGap"></canvas></div>
+  </div>
+
+  <!-- Marcas -->
+  <h2>Marcas — maio</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>Mix do realizado por marca</h3>
+      <div class="cap">Participação no faturamento realizado de maio</div>
+      <div class="chart-box"><canvas id="cMix"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Top 10 marcas: meta × realizado</h3>
+      <div class="cap">R$ mi — % de atingimento na tabela abaixo</div>
+      <div class="chart-box tall"><canvas id="cMarca"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <table>
+      <thead><tr><th>Marca</th><th>Meta</th><th>Realizado</th><th>% Ating.</th></tr></thead>
+      <tbody id="tabMarca"></tbody>
+    </table>
+  </div>
+
+  <!-- Insights -->
+  <h2>Insights de maio</h2>
+  <div class="insights">
+    <div class="ins alert">
+      <h4><span class="tag neg">Crítico</span> Maio fechou 9,5% abaixo da meta</h4>
+      <p>Realizado de <strong>R$ 44,30 mi</strong> contra meta de <strong>R$ 48,94 mi</strong> — um déficit de <strong>−R$ 4,64 mi</strong> (90,5% de atingimento). O VMD realizado (R$ 2,11 mi) ficou em 86,2% da meta diária.</p>
+    </div>
+    <div class="ins alert">
+      <h4><span class="tag neg">Crítico</span> FARMA RJ é o maior buraco</h4>
+      <p>RJ atingiu apenas <strong>71,9%</strong> da meta (R$ 5,81 mi de R$ 8,07 mi), um gap de <strong>−R$ 2,27 mi</strong> — quase metade de todo o déficit do mês. É a prioridade nº 1 de investigação.</p>
+    </div>
+    <div class="ins watch">
+      <h4><span class="tag warn">Atenção</span> FARMA GO também ficou para trás</h4>
+      <p>GO entregou <strong>84,0%</strong> da meta (gap de −R$ 1,79 mi). Somada a RJ, as duas filiais explicam <strong>~87%</strong> de todo o gap de maio.</p>
+    </div>
+    <div class="ins good">
+      <h4><span class="tag pos">Destaque</span> SP quase cravou e DF superou</h4>
+      <p>FARMA SP atingiu <strong>98,8%</strong> da meta (a maior operação, praticamente no alvo) e <strong>FARMA DF bateu 109,9%</strong> — a única filial acima da meta no mês. PR ficou em 92,9%.</p>
+    </div>
+    <div class="ins good">
+      <h4><span class="tag pos">Destaque</span> EURO (G) puxou o realizado</h4>
+      <p>EURO (G) superou a meta em <strong>+10,9%</strong> (R$ 7,92 mi) e NEOQ (S) cravou <strong>100,3%</strong>. Juntas seguram o resultado e respondem por parte relevante do faturamento.</p>
+    </div>
+    <div class="ins alert">
+      <h4><span class="tag neg">Crítico</span> NEOQ (G) e SANDOZ (G) decepcionam</h4>
+      <p>NEOQ (G) atingiu só <strong>78,6%</strong> (gap de −R$ 1,99 mi, o maior por marca) e SANDOZ (G) apenas <strong>66,2%</strong>. São os principais ofensores no nível de produto.</p>
+    </div>
+    <div class="ins watch">
+      <h4><span class="tag warn">Atenção</span> Concentração elevada</h4>
+      <p>As três maiores marcas — NEOQ (S), EURO (G) e NEOQ (G) — somam <strong>~54%</strong> do realizado de maio. O desempenho do mês fica muito exposto à oscilação dessas marcas.</p>
+    </div>
+    <div class="ins">
+      <h4><span class="tag warn">Ação</span> Próximos passos</h4>
+      <p>1) Plano de recuperação para RJ e GO; 2) diagnóstico da queda de NEOQ (G) e SANDOZ (G); 3) replicar o que fez SP/DF baterem meta; 4) revisar metas de RJ frente à capacidade real de entrega.</p>
+    </div>
+  </div>
+
+  <footer>
+    Fonte: ORÇAMENTO VENDAS FARMA 2026 — Revisão Abril, aba ORCTO LAB (MAI / MAI REALIZ. / MAI % ATING.). Análise exclusiva de maio/2026 · 20 dias úteis · gerado em 16/06/2026.
+  </footer>
+</div>
+
+<script>
+const BRL = v => 'R$ ' + v.toLocaleString('pt-BR',{maximumFractionDigits:0});
+Chart.defaults.color = '#93a4b5';
+Chart.defaults.font.family = "'Segoe UI',system-ui,sans-serif";
+Chart.defaults.borderColor = 'rgba(255,255,255,.06)';
+
+// Filiais: meta, realizado
+const filiais=[
+  {n:'FARMA SP', meta:21795470, real:21530052},
+  {n:'FARMA GO', meta:11168252, real:9379253},
+  {n:'FARMA RJ', meta:8074005,  real:5807307},
+  {n:'FARMA PR', meta:6509668,  real:6050565},
+  {n:'FARMA DF', meta:1390620,  real:1528830},
+];
+const metaT=48938015, realT=44296007;
+
+// Tabela filiais
+const tb=document.getElementById('tabFilial');
+filiais.forEach(f=>{
+  const gap=f.real-f.meta, at=f.real/f.meta;
+  const cls=at>=1?'pos':(at>=0.9?'warn':'neg');
+  tb.innerHTML+=`<tr>
+    <td>${f.n}</td><td>${BRL(f.meta)}</td><td>${BRL(f.real)}</td>
+    <td class="${gap>=0?'pos':'neg'}">${gap>=0?'+':''}${BRL(gap)}</td>
+    <td><span class="pill ${cls}">${(at*100).toFixed(1)}%</span></td></tr>`;
+});
+document.getElementById('tabFilialFoot').innerHTML=`<tr>
+  <td>TOTAL</td><td>${BRL(metaT)}</td><td>${BRL(realT)}</td>
+  <td class="neg">${BRL(realT-metaT)}</td>
+  <td><span class="pill warn">90,5%</span></td></tr>`;
+
+// Gráfico meta x realizado
+new Chart(cFilial,{type:'bar',data:{
+  labels:filiais.map(f=>f.n.replace('FARMA ','')),
+  datasets:[
+    {label:'Meta',data:filiais.map(f=>f.meta/1e6),backgroundColor:'#5a6b7d',borderRadius:5},
+    {label:'Realizado',data:filiais.map(f=>f.real/1e6),backgroundColor:'#3ea6ff',borderRadius:5},
+  ]},options:{maintainAspectRatio:false,plugins:{legend:{position:'top'},
+    tooltip:{callbacks:{label:c=>c.dataset.label+': R$ '+c.parsed.y.toFixed(1)+' mi'}}},
+    scales:{y:{ticks:{callback:v=>v+' mi'}}}}});
+
+// % atingimento
+const at=filiais.map(f=>f.real/f.meta*100);
+new Chart(cAting,{type:'bar',data:{
+  labels:filiais.map(f=>f.n.replace('FARMA ','')),
+  datasets:[{data:at,backgroundColor:at.map(v=>v>=100?'#2ecc71':(v>=90?'#ffb020':'#ff5d5d')),borderRadius:5}]},
+  options:{maintainAspectRatio:false,plugins:{legend:{display:false},
+    annotation:false,tooltip:{callbacks:{label:c=>c.parsed.y.toFixed(1)+'% da meta'}}},
+    scales:{y:{suggestedMax:120,ticks:{callback:v=>v+'%'},
+      grid:{color:ctx=>ctx.tick.value===100?'rgba(255,93,93,.6)':'rgba(255,255,255,.06)'}}}}});
+
+// Gap por filial
+const gaps=filiais.map(f=>({n:f.n.replace('FARMA ',''),g:(f.real-f.meta)/1e6})).sort((a,b)=>a.g-b.g);
+new Chart(cGap,{type:'bar',data:{labels:gaps.map(x=>x.n),
+  datasets:[{data:gaps.map(x=>x.g),backgroundColor:gaps.map(x=>x.g>=0?'#2ecc71':'#ff5d5d'),borderRadius:5}]},
+  options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},
+    tooltip:{callbacks:{label:c=>'R$ '+c.parsed.x.toFixed(2)+' mi'}}},
+    scales:{x:{ticks:{callback:v=>v+' mi'}}}}});
+
+// Marcas top10 (meta, real)
+const marcas=[
+  {n:'NEOQ (S)',meta:8779109,real:8803435},
+  {n:'EURO (G)',meta:7139224,real:7916255},
+  {n:'NEOQ (G)',meta:9292122,real:7305470},
+  {n:'SANDOZ (G)',meta:2309543,real:1528701},
+  {n:'LEGRAND (S)',meta:1310971,real:1057966},
+  {n:'GEOLAB (S)',meta:1005214,real:986897},
+  {n:'GEOLAB (G)',meta:1145585,real:966207},
+  {n:'NATULAB',meta:1082075,real:963581},
+  {n:'PHARLAB (G)',meta:1145321,real:926529},
+  {n:'MULTILAB (S)',meta:1085344,real:827385},
+];
+const somaTop=marcas.reduce((s,m)=>s+m.real,0);
+const outras=realT-somaTop;
+const pal=['#3ea6ff','#7c5cff','#2ecc71','#ffb020','#ff5d5d','#1abc9c','#e056fd','#f0932b','#48dbfb','#a29bfe','#576574'];
+new Chart(cMix,{type:'doughnut',data:{
+  labels:[...marcas.map(m=>m.n),'Outras'],
+  datasets:[{data:[...marcas.map(m=>m.real),outras],backgroundColor:pal,borderColor:'#18222e',borderWidth:2}]},
+  options:{maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}},
+    tooltip:{callbacks:{label:c=>c.label+': '+BRL(c.parsed)+' ('+(c.parsed/realT*100).toFixed(1)+'%)'}}}}});
+
+new Chart(cMarca,{type:'bar',data:{labels:marcas.map(m=>m.n),
+  datasets:[
+    {label:'Meta',data:marcas.map(m=>m.meta/1e6),backgroundColor:'#5a6b7d',borderRadius:4},
+    {label:'Realizado',data:marcas.map(m=>m.real/1e6),backgroundColor:'#3ea6ff',borderRadius:4},
+  ]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{position:'top'},
+    tooltip:{callbacks:{label:c=>c.dataset.label+': R$ '+c.parsed.x.toFixed(2)+' mi'}}},
+    scales:{x:{ticks:{callback:v=>v+' mi'}}}}});
+
+// Tabela marcas
+const tm=document.getElementById('tabMarca');
+marcas.forEach(m=>{
+  const a=m.real/m.meta; const cls=a>=1?'pos':(a>=0.9?'warn':'neg');
+  tm.innerHTML+=`<tr><td>${m.n}</td><td>${BRL(m.meta)}</td><td>${BRL(m.real)}</td>
+    <td><span class="pill ${cls}">${(a*100).toFixed(1)}%</span></td></tr>`;
+});
+</script>
+</body>
+</html>
