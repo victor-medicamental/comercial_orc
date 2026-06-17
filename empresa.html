@@ -103,9 +103,8 @@ const NUM=v=>v.toLocaleString('pt-BR');
 const MI=v=>(v/1e6).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
 Chart.defaults.color='#93a4b5';Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";Chart.defaults.borderColor='rgba(255,255,255,.06)';
 
-const tVenda=D.reduce((s,d)=>s+d.venda,0), tPed=D.reduce((s,d)=>s+d.pedidos,0);
-const tMeta=D.reduce((s,d)=>s+d.metaJun,0), tProj=D.reduce((s,d)=>s+d.pedProjJun,0);
-const tTicket=tVenda/tPed;
+// Totais conforme o "Total Geral" do relatório (pedidos do total incluem empresas além das 4 listadas)
+const tVenda=44935319.52, tPed=69046, tMeta=51605576.56, tProj=79296, tTicket=650.80;
 
 document.getElementById('kpis').innerHTML=`
   <div class="kpi"><div class="lbl">Venda Total Maio</div><div class="val">R$ ${MI(tVenda)} mi</div><div class="delta">4 empresas</div></div>
