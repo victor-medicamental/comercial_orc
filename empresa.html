@@ -118,7 +118,7 @@ const DU={maio:20, junho:21};
 const BRL=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const BRL0=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
 const NUM=v=>v.toLocaleString('pt-BR',{maximumFractionDigits:0});
-const NUM1=v=>v.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+const NUM1=v=>Math.round(v).toLocaleString('pt-BR');
 const MI=v=>(v/1e6).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 Chart.defaults.color='#93a4b5';Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";Chart.defaults.borderColor='rgba(255,255,255,.06)';
 
