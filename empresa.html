@@ -106,10 +106,10 @@
 
 <script>
 const D=[
-  {e:'FARMA GO', venda:18212365.95, ticket:1067.95, pedidos:17054, metaJun:13201895.09, pedProjJun:12362},
+  {e:'FARMA GO', venda:18212365.95, ticket:1067.95, pedidos:17054, metaJun:18043812.23, pedProjJun:16896},
   {e:'FARMA PR', venda:6053873.54,  ticket:286.27,  pedidos:21147, metaJun:6840588.40,  pedProjJun:23896},
   {e:'FARMA RJ', venda:5810336.15,  ticket:805.46,  pedidos:7214,  metaJun:8559414.32,  pedProjJun:10627},
-  {e:'FARMA SP', venda:14858743.88, ticket:767.07,  pedidos:19371, metaJun:23003678.75, pedProjJun:29989},
+  {e:'FARMA SP', venda:14858743.88, ticket:767.07,  pedidos:19371, metaJun:18161761.62, pedProjJun:23677},
 ];
 // Totais conforme "Total Geral" do relatório (pedidos do total incluem empresas além das 4 listadas)
 const TOT={venda:44935319.52, ticket:650.80, pedidos:69046, metaJun:51605576.56, pedProjJun:79296};
@@ -145,13 +145,13 @@ function render(){
     <div class="kpi"><div class="lbl">Venda Maio${s}</div><div class="val">R$ ${MI(vMai(TOT.venda))} mi</div><div class="delta">${modo==='dia'?'média diária':'4 empresas'}</div></div>
     <div class="kpi"><div class="lbl">Ticket Médio</div><div class="val">${BRL(TOT.ticket)}</div><div class="delta">venda ÷ pedidos</div></div>
     <div class="kpi"><div class="lbl">Pedidos Maio${s}</div><div class="val">${modo==='dia'?NUM1(vMai(TOT.pedidos)):NUM(TOT.pedidos)}</div><div class="delta">${modo==='dia'?'pedidos/dia útil':'pedidos no mês'}</div></div>
-    <div class="kpi"><div class="lbl">Meta Junho${s}</div><div class="val">R$ ${MI(vJun(TOT.metaJun))} mi</div><div class="delta">${modo==='dia'?'meta diária':'orçamento de junho'}</div></div>
+    <div class="kpi"><div class="lbl">Meta Junho Atualizada${s}</div><div class="val">R$ ${MI(vJun(TOT.metaJun))} mi</div><div class="delta">${modo==='dia'?'meta diária':'orçamento atualizado'}</div></div>
     <div class="kpi"><div class="lbl">Pedidos Proj. Junho${s}</div><div class="val">${modo==='dia'?NUM1(vJun(TOT.pedProjJun)):NUM(TOT.pedProjJun)}</div><div class="delta">${modo==='dia'?'pedidos/dia útil':'projeção de pedidos'}</div></div>`;
 
   // cabeçalhos
   document.getElementById('hVenda').textContent='Venda Maio'+s;
   document.getElementById('hPed').textContent='Pedidos Maio'+s;
-  document.getElementById('hMeta').textContent='Meta Junho'+s;
+  document.getElementById('hMeta').textContent='Meta Junho Atualizada'+s;
   document.getElementById('hProj').textContent='Pedidos Proj. Junho'+s;
   document.getElementById('hTab').textContent='Indicadores por empresa'+(modo==='dia'?' — por dia útil':'');
 
@@ -173,7 +173,7 @@ function render(){
   document.getElementById('c1').textContent= modo==='dia'?'R$ mil por dia útil':'R$ milhões';
   document.getElementById('g3').textContent='Pedidos: Maio × Junho'+(modo==='dia'?' (por dia útil)':'');
   document.getElementById('c3').textContent= modo==='dia'?'pedidos por dia útil (Maio ÷20 · Junho ÷21)':'quantidade de pedidos no mês';
-  document.getElementById('g4').textContent='Venda Maio × Meta Junho'+(modo==='dia'?' (por dia útil)':'');
+  document.getElementById('g4').textContent='Venda Maio × Meta Junho atualizada'+(modo==='dia'?' (por dia útil)':'');
   document.getElementById('c4').textContent= modo==='dia'?'R$ mil por dia útil':'R$ milhões';
 
   const labels=D.map(d=>d.e.replace('FARMA ',''));
