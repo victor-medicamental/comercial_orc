@@ -13,16 +13,24 @@
   .topnav{display:flex;align-items:center;gap:14px;margin-bottom:14px}
   .home{display:inline-flex;align-items:center;gap:7px;color:var(--accent);text-decoration:none;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--card);padding:7px 13px;border-radius:9px}
   .home:hover{border-color:var(--accent)}
-  header{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:22px}
+  header{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:20px}
   .eyebrow{color:var(--accent);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
   h1{font-size:28px;font-weight:700;margin:6px 0 4px}
   .sub{color:var(--muted);font-size:14px}
+  .toggle{display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:22px}
+  .toggle .lbl{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .chips{display:flex;gap:7px}
+  .chip{cursor:pointer;border:1px solid var(--line);background:var(--card2);color:var(--ink);padding:7px 15px;border-radius:20px;font-size:13px;font-weight:600;transition:.15s}
+  .chip:hover{border-color:var(--accent)}
+  .chip.active{background:var(--accent);border-color:var(--accent);color:#0b1118}
+  .du{margin-left:auto;font-size:12.5px;color:var(--muted)}
+  .du b{color:var(--ink)}
   h2{font-size:18px;font-weight:600;margin:32px 0 14px;display:flex;align-items:center;gap:10px}
   h2::before{content:"";width:4px;height:19px;background:var(--accent);border-radius:3px}
   .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px}
   .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
   .kpi .lbl{color:var(--muted);font-size:12px;font-weight:500}
-  .kpi .val{font-size:23px;font-weight:700;margin-top:5px}
+  .kpi .val{font-size:22px;font-weight:700;margin-top:5px}
   .kpi .delta{font-size:12.5px;font-weight:600;margin-top:3px;color:var(--muted)}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
@@ -36,7 +44,7 @@
   tbody tr:hover{background:var(--card2)}
   tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:none}
   footer{margin-top:38px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
-  @media(max-width:820px){.grid2{grid-template-columns:1fr}}
+  @media(max-width:820px){.grid2{grid-template-columns:1fr}.du{margin-left:0}}
 </style>
 </head>
 <body>
@@ -48,13 +56,19 @@
     <div class="sub">Venda, ticket médio e pedidos de maio · meta e projeção de pedidos de junho</div>
   </header>
 
+  <div class="toggle">
+    <span class="lbl">Visão</span>
+    <div class="chips" id="chipsModo"></div>
+    <span class="du">Maio: <b>20 dias úteis</b> · Junho: <b>21 dias úteis</b></span>
+  </div>
+
   <div class="kpis" id="kpis"></div>
 
-  <h2>Indicadores por empresa</h2>
+  <h2 id="hTab">Indicadores por empresa</h2>
   <div class="card">
     <table>
       <thead><tr>
-        <th>Empresa</th><th>Venda Maio</th><th>Ticket Médio</th><th>Pedidos Maio</th><th>Meta Junho</th><th>Pedidos Proj. Junho</th>
+        <th>Empresa</th><th id="hVenda">Venda Maio</th><th>Ticket Médio</th><th id="hPed">Pedidos Maio</th><th id="hMeta">Meta Junho</th><th id="hProj">Pedidos Proj. Junho</th>
       </tr></thead>
       <tbody id="tab"></tbody>
       <tfoot id="tabFoot"></tfoot>
@@ -64,29 +78,29 @@
   <h2>Visão gráfica</h2>
   <div class="grid2">
     <div class="card">
-      <h3>Venda total de maio por empresa</h3>
-      <div class="cap">R$ milhões</div>
+      <h3 id="g1">Venda de maio por empresa</h3>
+      <div class="cap" id="c1">R$ milhões</div>
       <div class="chart-box"><canvas id="cVenda"></canvas></div>
     </div>
     <div class="card">
       <h3>Ticket médio por empresa</h3>
-      <div class="cap">R$ por pedido</div>
+      <div class="cap">R$ por pedido (não varia por dia útil)</div>
       <div class="chart-box"><canvas id="cTicket"></canvas></div>
     </div>
     <div class="card">
-      <h3>Pedidos: Maio × Projeção Junho</h3>
-      <div class="cap">quantidade de pedidos</div>
+      <h3 id="g3">Pedidos: Maio × Projeção Junho</h3>
+      <div class="cap" id="c3">quantidade de pedidos</div>
       <div class="chart-box"><canvas id="cPedidos"></canvas></div>
     </div>
     <div class="card">
-      <h3>Venda Maio × Meta Junho</h3>
-      <div class="cap">R$ milhões</div>
+      <h3 id="g4">Venda Maio × Meta Junho</h3>
+      <div class="cap" id="c4">R$ milhões</div>
       <div class="chart-box"><canvas id="cMeta"></canvas></div>
     </div>
   </div>
 
   <footer>
-    Fonte: relatório comercial por empresa (venda, ticket médio e pedidos de maio; meta e projeção de pedidos de junho). Valores em R$. Gerado em 17/06/2026.
+    Fonte: aba EMPRESA (venda, ticket médio e pedidos de maio; meta e projeção de pedidos de junho). Dias úteis: Maio = 20, Junho = 21. Na visão "por dia útil", valores de maio são divididos por 20 e os de junho por 21 (ticket médio é por pedido, não muda). Valores em R$. Gerado em 17/06/2026.
   </footer>
 </div>
 
@@ -97,47 +111,97 @@ const D=[
   {e:'FARMA RJ', venda:5810336.15,  ticket:805.46,  pedidos:7214,  metaJun:8559414.32,  pedProjJun:10627},
   {e:'FARMA SP', venda:14858743.88, ticket:767.07,  pedidos:19371, metaJun:23003678.75, pedProjJun:29989},
 ];
+// Totais conforme "Total Geral" do relatório (pedidos do total incluem empresas além das 4 listadas)
+const TOT={venda:44935319.52, ticket:650.80, pedidos:69046, metaJun:51605576.56, pedProjJun:79296};
+const DU={maio:20, junho:21};
+
 const BRL=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const BRL0=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
-const NUM=v=>v.toLocaleString('pt-BR');
-const MI=v=>(v/1e6).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+const NUM=v=>v.toLocaleString('pt-BR',{maximumFractionDigits:0});
+const NUM1=v=>v.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+const MI=v=>(v/1e6).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 Chart.defaults.color='#93a4b5';Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";Chart.defaults.borderColor='rgba(255,255,255,.06)';
 
-// Totais conforme o "Total Geral" do relatório (pedidos do total incluem empresas além das 4 listadas)
-const tVenda=44935319.52, tPed=69046, tMeta=51605576.56, tProj=79296, tTicket=650.80;
+let modo='total';     // 'total' | 'dia'
+let charts={};
+const dia = modo==='dia';
+// divisores
+function vMai(x){return modo==='dia'? x/DU.maio : x;}
+function vJun(x){return modo==='dia'? x/DU.junho : x;}
+const suf = ()=> modo==='dia'?'/dia útil':'';
 
-document.getElementById('kpis').innerHTML=`
-  <div class="kpi"><div class="lbl">Venda Total Maio</div><div class="val">R$ ${MI(tVenda)} mi</div><div class="delta">4 empresas</div></div>
-  <div class="kpi"><div class="lbl">Ticket Médio</div><div class="val">${BRL(tTicket)}</div><div class="delta">venda ÷ pedidos</div></div>
-  <div class="kpi"><div class="lbl">Total Pedidos Maio</div><div class="val">${NUM(tPed)}</div><div class="delta">pedidos no mês</div></div>
-  <div class="kpi"><div class="lbl">Meta Junho</div><div class="val">R$ ${MI(tMeta)} mi</div><div class="delta">orçamento de junho</div></div>
-  <div class="kpi"><div class="lbl">Pedidos Proj. Junho</div><div class="val">${NUM(tProj)}</div><div class="delta">projeção de pedidos</div></div>`;
+const chipsModo=document.getElementById('chipsModo');
+[['Total','total'],['Por dia útil','dia']].forEach(([lbl,v])=>{
+  const c=document.createElement('div');c.className='chip'+(v===modo?' active':'');
+  c.textContent=lbl;c.dataset.v=v;c.onclick=()=>{modo=v;render();};
+  chipsModo.appendChild(c);
+});
 
-const tb=document.getElementById('tab');
-D.forEach(d=>{tb.innerHTML+=`<tr>
-  <td>${d.e}</td><td>${BRL0(d.venda)}</td><td>${BRL(d.ticket)}</td>
-  <td>${NUM(d.pedidos)}</td><td>${BRL0(d.metaJun)}</td><td>${NUM(d.pedProjJun)}</td></tr>`;});
-document.getElementById('tabFoot').innerHTML=`<tr>
-  <td>Total Geral</td><td>${BRL0(tVenda)}</td><td>${BRL(tTicket)}</td>
-  <td>${NUM(tPed)}</td><td>${BRL0(tMeta)}</td><td>${NUM(tProj)}</td></tr>`;
+function render(){
+  document.querySelectorAll('#chipsModo .chip').forEach(c=>c.classList.toggle('active',c.dataset.v===modo));
+  const s=suf();
+  // KPIs
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi"><div class="lbl">Venda Maio${s}</div><div class="val">R$ ${MI(vMai(TOT.venda))} mi</div><div class="delta">${modo==='dia'?'média diária':'4 empresas'}</div></div>
+    <div class="kpi"><div class="lbl">Ticket Médio</div><div class="val">${BRL(TOT.ticket)}</div><div class="delta">venda ÷ pedidos</div></div>
+    <div class="kpi"><div class="lbl">Pedidos Maio${s}</div><div class="val">${modo==='dia'?NUM1(vMai(TOT.pedidos)):NUM(TOT.pedidos)}</div><div class="delta">${modo==='dia'?'pedidos/dia útil':'pedidos no mês'}</div></div>
+    <div class="kpi"><div class="lbl">Meta Junho${s}</div><div class="val">R$ ${MI(vJun(TOT.metaJun))} mi</div><div class="delta">${modo==='dia'?'meta diária':'orçamento de junho'}</div></div>
+    <div class="kpi"><div class="lbl">Pedidos Proj. Junho${s}</div><div class="val">${modo==='dia'?NUM1(vJun(TOT.pedProjJun)):NUM(TOT.pedProjJun)}</div><div class="delta">${modo==='dia'?'pedidos/dia útil':'projeção de pedidos'}</div></div>`;
 
-const labels=D.map(d=>d.e.replace('FARMA ',''));
-const pal=['#3ea6ff','#7c5cff','#2ecc71','#ffb020'];
-function bar(id,data,opt){return new Chart(document.getElementById(id),{type:'bar',data:{labels,datasets:[{data,backgroundColor:opt.colors||pal,borderRadius:5}]},
-  options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:opt.tip}}},scales:{y:{ticks:{callback:opt.ytick}}}}});}
+  // cabeçalhos
+  document.getElementById('hVenda').textContent='Venda Maio'+s;
+  document.getElementById('hPed').textContent='Pedidos Maio'+s;
+  document.getElementById('hMeta').textContent='Meta Junho'+s;
+  document.getElementById('hProj').textContent='Pedidos Proj. Junho'+s;
+  document.getElementById('hTab').textContent='Indicadores por empresa'+(modo==='dia'?' — por dia útil':'');
 
-bar('cVenda',D.map(d=>d.venda/1e6),{tip:c=>'R$ '+c.parsed.y.toFixed(2)+' mi',ytick:v=>v+' mi'});
-bar('cTicket',D.map(d=>d.ticket),{tip:c=>BRL(c.parsed.y),ytick:v=>'R$ '+v});
+  // tabela
+  const tb=document.getElementById('tab');tb.innerHTML='';
+  D.forEach(d=>{tb.innerHTML+=`<tr>
+    <td>${d.e}</td><td>${BRL0(vMai(d.venda))}</td><td>${BRL(d.ticket)}</td>
+    <td>${modo==='dia'?NUM1(vMai(d.pedidos)):NUM(d.pedidos)}</td>
+    <td>${BRL0(vJun(d.metaJun))}</td>
+    <td>${modo==='dia'?NUM1(vJun(d.pedProjJun)):NUM(d.pedProjJun)}</td></tr>`;});
+  document.getElementById('tabFoot').innerHTML=`<tr>
+    <td>Total Geral</td><td>${BRL0(vMai(TOT.venda))}</td><td>${BRL(TOT.ticket)}</td>
+    <td>${modo==='dia'?NUM1(vMai(TOT.pedidos)):NUM(TOT.pedidos)}</td>
+    <td>${BRL0(vJun(TOT.metaJun))}</td>
+    <td>${modo==='dia'?NUM1(vJun(TOT.pedProjJun)):NUM(TOT.pedProjJun)}</td></tr>`;
 
-new Chart(cPedidos,{type:'bar',data:{labels,datasets:[
-  {label:'Pedidos Maio',data:D.map(d=>d.pedidos),backgroundColor:'#3ea6ff',borderRadius:5},
-  {label:'Proj. Junho',data:D.map(d=>d.pedProjJun),backgroundColor:'#7c5cff',borderRadius:5},
-]},options:{maintainAspectRatio:false,plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+NUM(c.parsed.y)}}},scales:{y:{ticks:{callback:v=>NUM(v)}}}}});
+  // captions
+  document.getElementById('g1').textContent='Venda de maio por empresa'+(modo==='dia'?' (por dia útil)':'');
+  document.getElementById('c1').textContent= modo==='dia'?'R$ mil por dia útil':'R$ milhões';
+  document.getElementById('g3').textContent='Pedidos: Maio × Junho'+(modo==='dia'?' (por dia útil)':'');
+  document.getElementById('c3').textContent= modo==='dia'?'pedidos por dia útil (Maio ÷20 · Junho ÷21)':'quantidade de pedidos no mês';
+  document.getElementById('g4').textContent='Venda Maio × Meta Junho'+(modo==='dia'?' (por dia útil)':'');
+  document.getElementById('c4').textContent= modo==='dia'?'R$ mil por dia útil':'R$ milhões';
 
-new Chart(cMeta,{type:'bar',data:{labels,datasets:[
-  {label:'Venda Maio',data:D.map(d=>d.venda/1e6),backgroundColor:'#5a6b7d',borderRadius:5},
-  {label:'Meta Junho',data:D.map(d=>d.metaJun/1e6),backgroundColor:'#2ecc71',borderRadius:5},
-]},options:{maintainAspectRatio:false,plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': R$ '+c.parsed.y.toFixed(2)+' mi'}}},scales:{y:{ticks:{callback:v=>v+' mi'}}}}});
+  const labels=D.map(d=>d.e.replace('FARMA ',''));
+  const pal=['#3ea6ff','#7c5cff','#2ecc71','#ffb020'];
+  const sc = modo==='dia'?1e3:1e6;      // escala: mil/dia ou milhões/mês
+  const un = modo==='dia'?' mil':' mi';
+  draw('cVenda',{labels,datasets:[{data:D.map(d=>vMai(d.venda)/sc),backgroundColor:pal,borderRadius:5}]},
+    {legend:false,tip:c=>'R$ '+c.parsed.y.toFixed(modo==='dia'?0:2)+un,ytick:v=>v+un});
+  draw('cTicket',{labels,datasets:[{data:D.map(d=>d.ticket),backgroundColor:'#7c5cff',borderRadius:5}]},
+    {legend:false,tip:c=>BRL(c.parsed.y),ytick:v=>'R$ '+v});
+  draw('cPedidos',{labels,datasets:[
+    {label:'Maio',data:D.map(d=>vMai(d.pedidos)),backgroundColor:'#3ea6ff',borderRadius:5},
+    {label:'Junho (proj.)',data:D.map(d=>vJun(d.pedProjJun)),backgroundColor:'#7c5cff',borderRadius:5},
+  ]},{legend:true,tip:c=>c.dataset.label+': '+(modo==='dia'?NUM1(c.parsed.y):NUM(c.parsed.y)),ytick:v=>NUM(v)});
+  draw('cMeta',{labels,datasets:[
+    {label:'Venda Maio',data:D.map(d=>vMai(d.venda)/sc),backgroundColor:'#5a6b7d',borderRadius:5},
+    {label:'Meta Junho',data:D.map(d=>vJun(d.metaJun)/sc),backgroundColor:'#2ecc71',borderRadius:5},
+  ]},{legend:true,tip:c=>c.dataset.label+': R$ '+c.parsed.y.toFixed(modo==='dia'?0:2)+un,ytick:v=>v+un});
+}
+
+function draw(id,data,opt){
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart(document.getElementById(id),{type:'bar',data,
+    options:{maintainAspectRatio:false,plugins:{legend:{display:opt.legend,position:'top'},
+      tooltip:{callbacks:{label:opt.tip}}},scales:{y:{ticks:{callback:opt.ytick}}}}});
+}
+
+render();
 </script>
 </body>
 </html>
