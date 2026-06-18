@@ -5,65 +5,145 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel Comercial — Farma 2026</title>
 <style>
-  :root{--bg:#0f1620;--card:#18222e;--card2:#1f2c3a;--line:#2b3a4a;--ink:#eef3f8;--muted:#93a4b5;--accent:#3ea6ff;--accent2:#7c5cff;--pos:#2ecc71}
+  :root{--bg:#0b121b;--card:#18222e;--card2:#1f2c3a;--line:#2b3a4a;--ink:#eef3f8;--muted:#93a4b5;--accent:#3ea6ff;--accent2:#7c5cff;--pos:#2ecc71}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:radial-gradient(1200px 600px at 50% -10%,#16222f 0%,var(--bg) 60%);color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
-  .wrap{max-width:880px;width:100%}
-  header{text-align:center;margin-bottom:40px}
-  .eyebrow{color:var(--accent);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
-  h1{font-size:34px;font-weight:700;margin:10px 0 8px}
+  html,body{min-height:100%}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0b121b;color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:48px 20px;position:relative;overflow-x:hidden}
+
+  /* ===== Fundo de inteligência de mercado ===== */
+  .bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+  /* gradiente base */
+  .bg .base{position:absolute;inset:0;background:
+     radial-gradient(900px 500px at 18% 8%,rgba(62,166,255,.16),transparent 60%),
+     radial-gradient(820px 520px at 86% 18%,rgba(124,92,255,.15),transparent 60%),
+     radial-gradient(1000px 700px at 50% 115%,rgba(46,204,113,.10),transparent 60%),
+     linear-gradient(180deg,#0c1521,#0b121b)}
+  /* grade técnica */
+  .bg .grid{position:absolute;inset:-2px;background-image:
+     linear-gradient(rgba(120,160,200,.06) 1px,transparent 1px),
+     linear-gradient(90deg,rgba(120,160,200,.06) 1px,transparent 1px);
+     background-size:46px 46px;mask-image:radial-gradient(ellipse 90% 80% at 50% 40%,#000 55%,transparent 100%)}
+  /* orbs animados */
+  .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;animation:drift 18s ease-in-out infinite}
+  .orb.a{width:420px;height:420px;background:rgba(62,166,255,.35);top:-120px;left:-80px}
+  .orb.b{width:380px;height:380px;background:rgba(124,92,255,.32);bottom:-140px;right:-60px;animation-delay:-7s}
+  .orb.c{width:300px;height:300px;background:rgba(46,204,113,.22);top:40%;left:60%;animation-delay:-12s}
+  @keyframes drift{0%,100%{transform:translate(0,0)}33%{transform:translate(40px,30px)}66%{transform:translate(-30px,20px)}}
+  /* arte svg (gráficos) */
+  .bg svg{position:absolute;inset:0;width:100%;height:100%}
+  .trend{fill:none;stroke:url(#gline);stroke-width:2.5;stroke-linecap:round;
+     stroke-dasharray:2600;stroke-dashoffset:2600;animation:draw 4.5s ease-out forwards;filter:drop-shadow(0 0 6px rgba(62,166,255,.5))}
+  .area{fill:url(#garea);opacity:0;animation:fade 3s ease-out 1.2s forwards}
+  .bar{fill:rgba(62,166,255,.10);stroke:rgba(62,166,255,.25);stroke-width:1;transform-origin:bottom;transform:scaleY(0);animation:grow .9s ease-out forwards}
+  .node{fill:#3ea6ff;opacity:0;animation:pop .5s ease-out forwards;filter:drop-shadow(0 0 5px rgba(62,166,255,.9))}
+  .dot{fill:rgba(150,180,210,.35);animation:tw 4s ease-in-out infinite}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes fade{to{opacity:1}}
+  @keyframes grow{to{transform:scaleY(1)}}
+  @keyframes pop{to{opacity:1}}
+  @keyframes tw{0%,100%{opacity:.2}50%{opacity:.7}}
+
+  /* ===== conteúdo ===== */
+  .wrap{max-width:1500px;width:100%;position:relative;z-index:1}
+  header{text-align:center;margin-bottom:42px}
+  .eyebrow{color:var(--accent);font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+  h1{font-size:36px;font-weight:800;margin:12px 0 8px;letter-spacing:-.01em}
   .sub{color:var(--muted);font-size:15px}
   .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-  .c3 .icon{background:rgba(46,204,113,.16)}
-  .card{position:relative;display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:30px 26px;transition:.18s;overflow:hidden}
-  .card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 14px 40px rgba(0,0,0,.35)}
-  .card .icon{width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:18px}
-  .c1 .icon{background:rgba(62,166,255,.16)}
-  .c2 .icon{background:rgba(124,92,255,.16)}
+  .card{position:relative;display:block;text-decoration:none;color:inherit;background:rgba(24,34,46,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(120,150,190,.18);border-radius:18px;padding:30px 26px;transition:.18s;overflow:hidden}
+  .card::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.05),transparent 40%);pointer-events:none}
+  .card:hover{transform:translateY(-5px);border-color:var(--accent);box-shadow:0 18px 50px rgba(0,0,0,.45),0 0 0 1px rgba(62,166,255,.25)}
+  .card .icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:25px;margin-bottom:18px}
+  .c1 .icon{background:rgba(62,166,255,.18)}
+  .c2 .icon{background:rgba(124,92,255,.18)}
+  .c3 .icon{background:rgba(46,204,113,.18)}
   .card h2{font-size:21px;font-weight:700;margin-bottom:7px}
   .card p{color:var(--muted);font-size:13.5px;line-height:1.5}
   .card .go{margin-top:18px;font-size:13px;font-weight:600;color:var(--accent);display:inline-flex;align-items:center;gap:6px}
-  .badge{position:absolute;top:20px;right:22px;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:3px 9px;border-radius:20px}
-  .tag-principal{color:var(--pos);border-color:rgba(46,204,113,.4);background:rgba(46,204,113,.1)}
-  footer{text-align:center;margin-top:36px;color:var(--muted);font-size:12px}
-  @media(max-width:880px){.cards{grid-template-columns:1fr}h1{font-size:27px}}
+  .badge{position:absolute;top:20px;right:22px;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:3px 9px;border-radius:20px;background:rgba(11,18,27,.5)}
+  .tag-principal{color:var(--pos);border-color:rgba(46,204,113,.4);background:rgba(46,204,113,.12)}
+  footer{text-align:center;margin-top:38px;color:var(--muted);font-size:12px}
+  @media(max-width:880px){.cards{grid-template-columns:1fr}h1{font-size:28px}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div class="eyebrow">Medicamental · Distribuidora</div>
-    <h1>Painel Comercial — Farma 2026</h1>
-    <div class="sub">Escolha uma área para visualizar</div>
-  </header>
-
-  <div class="cards">
-    <a class="card c1" href="comercial-regional.html">
-      <span class="badge tag-principal">Principal</span>
-      <div class="icon">📊</div>
-      <h2>Comercial / Regional</h2>
-      <p>Meta × realizado de Jan a Mai, metas dos 12 meses, atingimento por filial e UF, mix de marcas e insights dinâmicos.</p>
-      <span class="go">Abrir dashboard →</span>
-    </a>
-
-    <a class="card c2" href="empresa.html">
-      <span class="badge">Visão</span>
-      <div class="icon">🏢</div>
-      <h2>Empresa</h2>
-      <p>Venda total, ticket médio e total de pedidos de maio por empresa, com meta e projeção de pedidos de junho.</p>
-      <span class="go">Abrir tela →</span>
-    </a>
-
-    <a class="card c3" href="marcas.html">
-      <span class="badge">Estoque</span>
-      <div class="icon">📦</div>
-      <h2>Marcas</h2>
-      <p>Limites das indústrias × necessidade de compra e estoque (DDE) por marca — saber se vamos ter estoque suficiente.</p>
-      <span class="go">Abrir tela →</span>
-    </a>
+  <div class="bg" aria-hidden="true">
+    <div class="base"></div>
+    <div class="grid"></div>
+    <div class="orb a"></div><div class="orb b"></div><div class="orb c"></div>
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="gline" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#3ea6ff"/><stop offset="1" stop-color="#7c5cff"/>
+        </linearGradient>
+        <linearGradient id="garea" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="rgba(62,166,255,.22)"/><stop offset="1" stop-color="rgba(62,166,255,0)"/>
+        </linearGradient>
+      </defs>
+      <!-- barras -->
+      <g opacity=".7">
+        <rect class="bar" x="90"  y="560" width="46" height="180" style="animation-delay:.2s"/>
+        <rect class="bar" x="160" y="500" width="46" height="240" style="animation-delay:.35s"/>
+        <rect class="bar" x="230" y="540" width="46" height="200" style="animation-delay:.5s"/>
+        <rect class="bar" x="300" y="440" width="46" height="300" style="animation-delay:.65s"/>
+        <rect class="bar" x="1170" y="600" width="46" height="140" style="animation-delay:.5s"/>
+        <rect class="bar" x="1240" y="520" width="46" height="220" style="animation-delay:.65s"/>
+        <rect class="bar" x="1310" y="470" width="46" height="270" style="animation-delay:.8s"/>
+      </g>
+      <!-- area + linha de tendencia -->
+      <path class="area" d="M0,640 L160,560 L320,600 L480,470 L640,520 L800,380 L960,430 L1120,300 L1280,350 L1440,250 L1440,900 L0,900 Z"/>
+      <polyline class="trend" points="0,640 160,560 320,600 480,470 640,520 800,380 960,430 1120,300 1280,350 1440,250"/>
+      <!-- nós -->
+      <g>
+        <circle class="node" cx="480" cy="470" r="5" style="animation-delay:2.6s"/>
+        <circle class="node" cx="800" cy="380" r="5" style="animation-delay:3.2s"/>
+        <circle class="node" cx="1120" cy="300" r="5" style="animation-delay:3.8s"/>
+        <circle class="node" cx="1440" cy="250" r="6" style="animation-delay:4.3s"/>
+      </g>
+      <!-- pontos / scatter -->
+      <g>
+        <circle class="dot" cx="220" cy="200" r="3"/><circle class="dot" cx="380" cy="150" r="2.5" style="animation-delay:1s"/>
+        <circle class="dot" cx="560" cy="240" r="3" style="animation-delay:.5s"/><circle class="dot" cx="900" cy="180" r="2.5" style="animation-delay:1.5s"/>
+        <circle class="dot" cx="1050" cy="140" r="3" style="animation-delay:.8s"/><circle class="dot" cx="1250" cy="200" r="2.5" style="animation-delay:2s"/>
+        <circle class="dot" cx="700" cy="120" r="2.5" style="animation-delay:1.2s"/><circle class="dot" cx="120" cy="320" r="2.5" style="animation-delay:1.8s"/>
+      </g>
+    </svg>
   </div>
 
-  <footer>Atualizado em 17/06/2026 · fonte: ORÇAMENTO VENDAS FARMA 2026 e relatório comercial por empresa.</footer>
-</div>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">Medicamental · Inteligência de Mercado</div>
+      <h1>Painel Comercial — Farma 2026</h1>
+      <div class="sub">Escolha uma área para visualizar</div>
+    </header>
+
+    <div class="cards">
+      <a class="card c1" href="comercial-regional.html">
+        <span class="badge tag-principal">Principal</span>
+        <div class="icon">📊</div>
+        <h2>Comercial / Regional</h2>
+        <p>Meta × realizado de Jan a Mai, metas dos 12 meses, atingimento por filial e UF, mix de marcas e insights dinâmicos.</p>
+        <span class="go">Abrir dashboard →</span>
+      </a>
+
+      <a class="card c2" href="empresa.html">
+        <span class="badge">Visão</span>
+        <div class="icon">🏢</div>
+        <h2>Empresa</h2>
+        <p>Venda total, ticket médio e total de pedidos de maio por empresa, com meta e projeção de pedidos de junho.</p>
+        <span class="go">Abrir tela →</span>
+      </a>
+
+      <a class="card c3" href="marcas.html">
+        <span class="badge">Estoque</span>
+        <div class="icon">📦</div>
+        <h2>Marcas</h2>
+        <p>Limites das indústrias × necessidade de compra e estoque (DDE) por marca — saber se vamos ter estoque suficiente.</p>
+        <span class="go">Abrir tela →</span>
+      </a>
+    </div>
+
+    <footer>Atualizado em 17/06/2026 · fonte: ORÇAMENTO VENDAS FARMA 2026 e relatório comercial por empresa.</footer>
+  </div>
 </body>
 </html>
