@@ -3,58 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Marcas — Limites & Estoque | Farma 2026</title>
+<title>Marcas — Estoque & Limites | Farma 2026</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  :root{--bg:#0f1620;--card:#18222e;--card2:#1f2c3a;--line:#2b3a4a;--ink:#eef3f8;--muted:#93a4b5;--accent:#3ea6ff;--pos:#2ecc71;--neg:#ff5d5d;--warn:#ffb020}
+  :root{--bg:#0f1620;--card:#18222e;--card2:#1f2c3a;--line:#2b3a4a;--ink:#eef3f8;--muted:#93a4b5;--accent:#3ea6ff;--pos:#2ecc71;--neg:#ff5d5d;--warn:#ffb020;--exc:#7c5cff}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;padding:24px 18px 60px}
   .wrap{max-width:1180px;margin:0 auto}
   .topnav{display:flex;align-items:center;gap:14px;margin-bottom:14px}
   .home{display:inline-flex;align-items:center;gap:7px;color:var(--accent);text-decoration:none;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--card);padding:7px 13px;border-radius:9px}
   .home:hover{border-color:var(--accent)}
-  header{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:20px}
+  header{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:18px}
   .eyebrow{color:var(--accent);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
   h1{font-size:28px;font-weight:700;margin:6px 0 4px}
   .sub{color:var(--muted);font-size:14px}
-  .note{background:rgba(62,166,255,.08);border:1px solid rgba(62,166,255,.25);border-radius:10px;padding:12px 14px;font-size:12.8px;color:#cdd8e3;margin:18px 0 22px}
-  h2{font-size:18px;font-weight:600;margin:32px 0 14px;display:flex;align-items:center;gap:10px}
+  .filterbar{display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:18px}
+  .filterbar .lbl{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .scope{margin-left:auto;font-size:13px;font-weight:700;color:var(--accent)}
+  .note{background:rgba(62,166,255,.08);border:1px solid rgba(62,166,255,.25);border-radius:10px;padding:12px 14px;font-size:12.8px;color:#cdd8e3;margin:0 0 22px}
+  .note b{color:var(--ink)}
+  h2{font-size:18px;font-weight:600;margin:34px 0 14px;display:flex;align-items:center;gap:10px}
   h2::before{content:"";width:4px;height:19px;background:var(--accent);border-radius:3px}
   .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:13px}
   .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
   .kpi .lbl{color:var(--muted);font-size:12px;font-weight:500}
-  .kpi .val{font-size:23px;font-weight:700;margin-top:5px}
+  .kpi .val{font-size:24px;font-weight:700;margin-top:5px}
   .kpi .delta{font-size:12.5px;font-weight:600;margin-top:3px;color:var(--muted)}
-  .pos{color:var(--pos)}.neg{color:var(--neg)}.warn{color:var(--warn)}
+  .pos{color:var(--pos)}.neg{color:var(--neg)}.warn{color:var(--warn)}.exc{color:var(--exc)}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
   .card h3{font-size:15px;font-weight:600;margin-bottom:3px}
   .card .cap{color:var(--muted);font-size:12.5px;margin-bottom:13px}
-  .chart-box{position:relative;height:320px}
-  .chart-box.tall{height:380px}
+  .chart-box{position:relative;height:300px}
   table{width:100%;border-collapse:collapse;font-size:13px}
   th,td{padding:8px 9px;text-align:right;border-bottom:1px solid var(--line)}
   th:first-child,td:first-child{text-align:left}
   thead th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;user-select:none}
   thead th:hover{color:var(--ink)}
   tbody tr:hover{background:var(--card2)}
-  tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:none}
   .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11.5px;font-weight:700}
   .pill.pos{background:rgba(46,204,113,.16);color:var(--pos)}
   .pill.neg{background:rgba(255,93,93,.16);color:var(--neg)}
   .pill.warn{background:rgba(255,176,32,.16);color:var(--warn)}
-  .chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
-  .chip{cursor:pointer;border:1px solid var(--line);background:var(--card2);color:var(--ink);padding:6px 13px;border-radius:20px;font-size:12.5px;font-weight:600}
+  .pill.exc{background:rgba(124,92,255,.16);color:var(--exc)}
+  .chips{display:flex;gap:7px;flex-wrap:wrap}
+  .chip{cursor:pointer;border:1px solid var(--line);background:var(--card2);color:var(--ink);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
   .chip:hover{border-color:var(--accent)} .chip.active{background:var(--accent);border-color:var(--accent);color:#0b1118}
   .insights{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   .ins{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:15px}
-  .ins.alert{border-left-color:var(--neg)}.ins.good{border-left-color:var(--pos)}.ins.watch{border-left-color:var(--warn)}
+  .ins.alert{border-left-color:var(--neg)}.ins.good{border-left-color:var(--pos)}.ins.watch{border-left-color:var(--warn)}.ins.exc{border-left-color:var(--exc)}
   .ins h4{font-size:14px;margin-bottom:6px;display:flex;gap:8px;align-items:center}
   .ins p{font-size:13.2px;color:#cdd8e3}
   .tag{font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:5px;text-transform:uppercase}
-  .tag.neg{background:rgba(255,93,93,.18);color:var(--neg)}.tag.pos{background:rgba(46,204,113,.18);color:var(--pos)}.tag.warn{background:rgba(255,176,32,.18);color:var(--warn)}
+  .tag.neg{background:rgba(255,93,93,.18);color:var(--neg)}.tag.pos{background:rgba(46,204,113,.18);color:var(--pos)}.tag.warn{background:rgba(255,176,32,.18);color:var(--warn)}.tag.exc{background:rgba(124,92,255,.18);color:var(--exc)}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-top:8px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
   footer{margin-top:38px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
-  @media(max-width:820px){.grid2,.insights{grid-template-columns:1fr}}
+  @media(max-width:820px){.grid2,.insights{grid-template-columns:1fr}.scope{margin-left:0}}
 </style>
 </head>
 <body>
@@ -62,228 +68,227 @@
   <div class="topnav"><a class="home" href="index.html">← Início</a></div>
   <header>
     <div class="eyebrow">Painel Comercial — Farma 2026</div>
-    <h1>Marcas — Limites & Estoque</h1>
-    <div class="sub">Vamos conseguir comprar estoque suficiente dado o limite das indústrias? · base: maio</div>
+    <h1>Marcas — Estoque & Limites</h1>
+    <div class="sub">Temos estoque hoje? O limite deixa comprar o suficiente? · base: maio</div>
   </header>
 
+  <div class="filterbar">
+    <span class="lbl">Empresa</span>
+    <div class="chips" id="chipsEmp"></div>
+    <span class="scope" id="scopeTxt"></span>
+  </div>
+
   <div class="note">
-    <strong>Como ler:</strong> a <strong>Disponibilidade Proporcional</strong> = Limite Necessário ÷ Limite Disponível (proporcional compartilhado). <strong>Acima de 100%</strong> = a necessidade de compra supera o limite disponível → <strong>risco de faltar estoque</strong>. Abaixo de 100% = há folga de limite. Consideradas apenas marcas <strong>com limite definido</strong> (linhas sem limite/“não identificado” foram excluídas). Fonte: aba ANALISE LIMITES MAIO.
+    Duas perguntas, lado a lado: <b>1) Estoque hoje (DDE)</b> — dias de estoque atual vs. os <b>50 dias</b> necessários. <b>2) Limite de compra</b> — quanto a indústria libera vs. quanto precisamos comprar (<b>Cobertura = Limite disponível ÷ necessário</b>; abaixo de 100% o limite não cobre a compra). Só marcas <b>com limite definido</b>. Fonte: aba ANALISE LIMITES MAIO.
   </div>
 
   <div class="kpis" id="kpis"></div>
 
-  <h2>Risco de limite por marca</h2>
-  <div class="grid2-13" style="display:grid;grid-template-columns:1.1fr .9fr;gap:18px">
+  <h2>1. Estoque hoje (DDE)</h2>
+  <div class="grid2">
     <div class="card">
-      <h3>Disponibilidade proporcional por marca</h3>
-      <div class="cap">linha vermelha = 100% (acima = limite insuficiente)</div>
-      <div class="chart-box tall"><canvas id="cDisp"></canvas></div>
+      <h3>Distribuição dos itens por faixa de estoque</h3>
+      <div class="cap">referência: 50 dias necessários</div>
+      <div class="chart-box"><canvas id="cDDE"></canvas></div>
+      <div class="legend">
+        <span><i class="dot" style="background:#ff5d5d"></i>Crítico &lt;25d</span>
+        <span><i class="dot" style="background:#ffb020"></i>Baixo 25–50d</span>
+        <span><i class="dot" style="background:#2ecc71"></i>Adequado 50–100d</span>
+        <span><i class="dot" style="background:#7c5cff"></i>Excesso &gt;100d</span>
+      </div>
     </div>
     <div class="card">
-      <h3>Limite Necessário × Disponível</h3>
-      <div class="cap">R$ milhões — por marca</div>
-      <div class="chart-box tall"><canvas id="cLim"></canvas></div>
+      <h3>DDE por marca</h3>
+      <div class="cap">dias de estoque · linha = 50d necessário</div>
+      <div class="chart-box"><canvas id="cDDEmarca"></canvas></div>
     </div>
   </div>
 
-  <div class="card" style="margin-top:18px">
-    <table>
-      <thead><tr>
-        <th>Marca</th><th>Venda Maio</th><th>Lim. Necessário</th><th>Lim. Disponível</th><th>Disponib.</th><th>Situação</th>
-      </tr></thead>
-      <tbody id="tabMarca"></tbody>
-      <tfoot id="tabMarcaFoot"></tfoot>
-    </table>
-  </div>
-
-  <h2>Estoque atual (DDE) por empresa</h2>
+  <h2>2. Limite de compra por marca</h2>
   <div class="card">
-    <div class="cap" style="margin-bottom:10px">DDE = dias de estoque. Necessário = 50 dias. Abaixo de 50 (em vermelho/amarelo) indica cobertura atual abaixo do ideal.</div>
-    <div class="chips" id="chipsEmp"></div>
-    <div style="max-height:480px;overflow:auto">
+    <h3>Cobertura de limite (disponível ÷ necessário)</h3>
+    <div class="cap">linha = 100% · abaixo de 100% o limite NÃO cobre a compra necessária (risco)</div>
+    <div class="chart-box" style="height:340px"><canvas id="cCob"></canvas></div>
+  </div>
+
+  <h2>3. Veredito por item (estoque + limite)</h2>
+  <div class="card">
+    <div style="max-height:520px;overflow:auto">
       <table>
         <thead><tr>
-          <th data-k="m">Marca</th><th data-k="e">Empresa</th><th data-k="venda">Venda Maio</th>
-          <th data-k="ddeAtual">DDE atual</th><th>DDE neces.</th>
-          <th data-k="limNec">Lim. Necessário</th><th data-k="limProp">Lim. Disponível</th><th data-k="disp">Disponib.</th>
+          <th data-k="m">Marca</th><th data-k="e">Emp.</th><th data-k="venda">Venda Maio</th>
+          <th data-k="dde">DDE</th><th>Estoque</th>
+          <th data-k="cob">Cob. limite</th><th>Limite</th><th data-k="vord">Veredito</th>
         </tr></thead>
         <tbody id="tabDet"></tbody>
       </table>
     </div>
   </div>
 
-  <h2>Insights</h2>
+  <h2>Insights <span id="hInsScope" style="color:var(--muted);font-weight:400;font-size:14px"></span></h2>
   <div class="insights" id="insights"></div>
 
   <footer>
-    Fonte: aba ANALISE LIMITES MAIO. Disponibilidade proporcional = Limite Necessário ÷ Limite Proporcional Compartilhado (por marca). Apenas marcas com limite definido. Valores em R$. Gerado em 17/06/2026.
+    Fonte: aba ANALISE LIMITES MAIO. DDE = dias de estoque (necessário 50). Cobertura de limite = Limite Proporcional Compartilhado ÷ Limite Necessário (por marca). Apenas marcas com limite definido. Gerado em 17/06/2026.
   </footer>
 </div>
 
 <script>
 const ROWS=[
-  ['BIOLAB','GO',187110.14,9355.51,90,196,451069,2000000,953225],
-  ['BIOLAB','PR',14580.14,729.01,90,969,35149,2000000,74278],
-  ['BIOLAB','RJ',97837.83,4891.89,90,148,235859,2000000,498431],
-  ['BIOLAB','SP',93055.17,4652.76,90,63,224329,2000000,474066],
-  ['EMS','GO',33170.64,1658.53,80,7,71080,10000000,127847],
-  ['EMS','PR',110768.40,5538.42,80,58,237361,10000000,426925],
-  ['EMS','RJ',13523.53,676.18,80,66,28979,10000000,52123],
-  ['EMS','SP',102586.92,5129.35,80,51,219829,10000000,395391],
-  ['EURO','GO',5407606.59,270380.33,90,39,13036194,21000000,14109072],
-  ['EURO','PR',272044.30,13602.22,90,45,655821,21000000,709795],
-  ['EURO','RJ',532946.55,26647.33,90,58,1284782,21000000,1390519],
-  ['EURO','SP',1836105.88,91805.29,90,12,4426327,21000000,4790613],
-  ['GEOLAB','GO',690288.21,34514.41,90,36,1664088,3500000,1224391],
-  ['GEOLAB','PR',155224.51,7761.23,90,23,374202,3500000,275328],
-  ['GEOLAB','RJ',679907.05,33995.35,90,51,1639062,3500000,1205977],
-  ['GEOLAB','SP',447813.77,22390.69,90,33,1079551,3500000,794304],
-  ['GERMED','GO',4136.61,206.83,60,1,6648,10000000,15943],
-  ['LEGRAND','GO',275769.79,13788.49,60,24,443201,10000000,1062874],
-  ['LEGRAND','PR',234201.87,11710.09,60,27,376396,10000000,902663],
-  ['LEGRAND','RJ',225186.99,11259.35,60,34,361908,10000000,867918],
-  ['LEGRAND','SP',755332.35,37766.62,60,39,1213927,10000000,2911209],
-  ['MULTILAB','GO',257338.81,12866.94,80,50,551440,10000000,991837],
-  ['MULTILAB','PR',228264.80,11413.24,80,62,489139,10000000,879780],
-  ['MULTILAB','RJ',120509.59,6025.48,80,49,258235,10000000,464469],
-  ['MULTILAB','SP',233775.98,11688.80,80,45,500949,10000000,901021],
-  ['NATULAB','GO',231576.31,11578.82,75,34,465220,1200000,287597],
-  ['NATULAB','PR',185215.16,9260.76,75,14,372084,1200000,230020],
-  ['NATULAB','RJ',203095.96,10154.80,75,48,408005,1200000,252227],
-  ['NATULAB','SP',346367.49,17318.37,75,18,695828,1200000,430157],
-  ['NEOQ','GO',6473414.03,323670.70,60,72,10403701,35000000,13616519],
-  ['NEOQ','PR',2681810.54,134090.53,60,35,4310053,35000000,5641061],
-  ['NEOQ','RJ',1709004.61,85450.23,60,30,2746615,35000000,3594810],
-  ['NEOQ','SP',5775081.64,288754.08,60,19,9281381,35000000,12147610],
-  ['PHARLAB','GO',287391.87,14369.59,154,91,1185491,2000000,538017],
-  ['PHARLAB','PR',109313.38,5465.67,154,76,450918,2000000,204642],
-  ['PHARLAB','RJ',240660.66,12033.03,154,99,992725,2000000,450533],
-  ['PHARLAB','SP',430971.33,21548.57,154,100,1777757,2000000,806808],
-  ['SANDOZ','GO',917254.95,45862.75,90,361,2211240,5500000,3123364],
-  ['SANDOZ','PR',40118.30,2005.92,90,66,96714,5500000,136608],
-  ['SANDOZ','RJ',131344.77,6567.24,90,115,316635,5500000,447245],
-  ['SANDOZ','SP',526496.24,26324.81,90,51,1269232,5500000,1792783],
-].map(r=>({m:r[0],e:r[1],venda:r[2],vmd:r[3],prazo:r[4],ddeAtual:r[5],limNec:r[6],limInd:r[7],limProp:r[8]}));
+  ['BIOLAB','GO',187110.14,196,451069,953225],['BIOLAB','PR',14580.14,969,35149,74278],
+  ['BIOLAB','RJ',97837.83,148,235859,498431],['BIOLAB','SP',93055.17,63,224329,474066],
+  ['EMS','GO',33170.64,7,71080,127847],['EMS','PR',110768.40,58,237361,426925],
+  ['EMS','RJ',13523.53,66,28979,52123],['EMS','SP',102586.92,51,219829,395391],
+  ['EURO','GO',5407606.59,39,13036194,14109072],['EURO','PR',272044.30,45,655821,709795],
+  ['EURO','RJ',532946.55,58,1284782,1390519],['EURO','SP',1836105.88,12,4426327,4790613],
+  ['GEOLAB','GO',690288.21,36,1664088,1224391],['GEOLAB','PR',155224.51,23,374202,275328],
+  ['GEOLAB','RJ',679907.05,51,1639062,1205977],['GEOLAB','SP',447813.77,33,1079551,794304],
+  ['GERMED','GO',4136.61,1,6648,15943],
+  ['LEGRAND','GO',275769.79,24,443201,1062874],['LEGRAND','PR',234201.87,27,376396,902663],
+  ['LEGRAND','RJ',225186.99,34,361908,867918],['LEGRAND','SP',755332.35,39,1213927,2911209],
+  ['MULTILAB','GO',257338.81,50,551440,991837],['MULTILAB','PR',228264.80,62,489139,879780],
+  ['MULTILAB','RJ',120509.59,49,258235,464469],['MULTILAB','SP',233775.98,45,500949,901021],
+  ['NATULAB','GO',231576.31,34,465220,287597],['NATULAB','PR',185215.16,14,372084,230020],
+  ['NATULAB','RJ',203095.96,48,408005,252227],['NATULAB','SP',346367.49,18,695828,430157],
+  ['NEOQ','GO',6473414.03,72,10403701,13616519],['NEOQ','PR',2681810.54,35,4310053,5641061],
+  ['NEOQ','RJ',1709004.61,30,2746615,3594810],['NEOQ','SP',5775081.64,19,9281381,12147610],
+  ['PHARLAB','GO',287391.87,91,1185491,538017],['PHARLAB','PR',109313.38,76,450918,204642],
+  ['PHARLAB','RJ',240660.66,99,992725,450533],['PHARLAB','SP',430971.33,100,1777757,806808],
+  ['SANDOZ','GO',917254.95,361,2211240,3123364],['SANDOZ','PR',40118.30,66,96714,136608],
+  ['SANDOZ','RJ',131344.77,115,316635,447245],['SANDOZ','SP',526496.24,51,1269232,1792783],
+].map(r=>({m:r[0],e:r[1],venda:r[2],dde:r[3],limNec:r[4],limProp:r[5]}));
 const DDE_NEC=50;
+const EMP_NAME={GO:'FARMA GO',PR:'FARMA PR',RJ:'FARMA RJ',SP:'FARMA SP'};
 
 const BRL0=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
 const MI=v=>(v/1e6).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
 const PC=v=>(v*100).toFixed(0)+'%';
-const NUM=v=>Math.round(v).toLocaleString('pt-BR');
 Chart.defaults.color='#93a4b5';Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";Chart.defaults.borderColor='rgba(255,255,255,.06)';
-let charts={}, fEmp='Todas', sortK='disp', sortDir=-1;
+let charts={}, fEmp='Todas', sortK='vord', sortDir=1;
 
-// agrega por marca
-function marcas(){
-  const m={};
-  ROWS.forEach(r=>{if(!m[r.m])m[r.m]={m:r.m,venda:0,limNec:0,limProp:0,limInd:r.limInd};
-    m[r.m].venda+=r.venda;m[r.m].limNec+=r.limNec;m[r.m].limProp+=r.limProp;});
-  return Object.values(m).map(x=>({...x,disp:x.limProp?x.limNec/x.limProp:0}));
+function ddeFaixa(d){return d<25?'Crítico':(d<50?'Baixo':(d<=100?'Adequado':'Excesso'));}
+const ddeCls={'Crítico':'neg','Baixo':'warn','Adequado':'pos','Excesso':'exc'};
+const ddeColor={'Crítico':'#ff5d5d','Baixo':'#ffb020','Adequado':'#2ecc71','Excesso':'#7c5cff'};
+
+// cobertura de limite por marca (razão constante por marca → mesma em qualquer empresa)
+function cobOf(name){const rs=ROWS.filter(r=>r.m===name);const n=rs.reduce((s,r)=>s+r.limNec,0),p=rs.reduce((s,r)=>s+r.limProp,0);return n?p/n:0;}
+const cobFaixa=c=>c>=1.15?'Folga':(c>=1?'Atenção':'Insuficiente');
+const cobCls=c=>c>=1.15?'pos':(c>=1?'warn':'neg');
+const cobColor=c=>c>=1.15?'#2ecc71':(c>=1?'#ffb020':'#ff5d5d');
+
+function veredito(r){
+  const f=ddeFaixa(r.dde), ci=cobOf(r.m)<1;
+  if(f==='Excesso') return {t:'Excesso de estoque',cls:'exc',ord:5};
+  if((f==='Crítico'||f==='Baixo') && ci) return {t:'Risco alto',cls:'neg',ord:1};
+  if((f==='Crítico'||f==='Baixo') && !ci) return {t:'Repor (há limite)',cls:'warn',ord:2};
+  if(f==='Adequado' && ci) return {t:'Monitorar limite',cls:'warn',ord:3};
+  return {t:'OK',cls:'pos',ord:4};
 }
-const status=d=>d>1?'risco':(d>=0.85?'atencao':'ok');
-const statCls=d=>d>1?'neg':(d>=0.85?'warn':'pos');
-const statTxt=d=>d>1?'Risco':(d>=0.85?'Atenção':'OK');
-const dispColor=d=>d>1?'#ff5d5d':(d>=0.85?'#ffb020':'#2ecc71');
+function rowsF(){return ROWS.filter(r=>fEmp==='Todas'||r.e===fEmp);}
 
-function render(){
-  const M=marcas().sort((a,b)=>b.disp-a.disp);
-  const nRisco=M.filter(x=>x.disp>1).length;
-  const nAt=M.filter(x=>x.disp>=0.85&&x.disp<=1).length;
-  const totVenda=M.reduce((s,x)=>s+x.venda,0);
-  const totNec=M.reduce((s,x)=>s+x.limNec,0);
-  const totProp=M.reduce((s,x)=>s+x.limProp,0);
-  const dispGeral=totNec/totProp;
-
-  document.getElementById('kpis').innerHTML=`
-    <div class="kpi"><div class="lbl">Marcas com limite</div><div class="val">${M.length}</div><div class="delta">analisadas</div></div>
-    <div class="kpi"><div class="lbl">Em risco (&gt;100%)</div><div class="val neg">${nRisco}</div><div class="delta">limite insuficiente</div></div>
-    <div class="kpi"><div class="lbl">Em atenção (85–100%)</div><div class="val warn">${nAt}</div><div class="delta">perto do teto</div></div>
-    <div class="kpi"><div class="lbl">Disponibilidade geral</div><div class="val ${statCls(dispGeral)}">${PC(dispGeral)}</div><div class="delta">necessário ÷ disponível</div></div>
-    <div class="kpi"><div class="lbl">Limite necessário × disponível</div><div class="val">R$ ${MI(totNec)} / ${MI(totProp)} mi</div><div class="delta">total das marcas</div></div>`;
-
-  // chart disponibilidade
-  drawBar('cDisp',M.map(x=>x.m),[{data:M.map(x=>x.disp*100),backgroundColor:M.map(x=>dispColor(x.disp)),borderRadius:5}],
-    {horizontal:true,pct:true,refline:100});
-  // chart necessário x disponível
-  if(charts.cLim)charts.cLim.destroy();
-  charts.cLim=new Chart(document.getElementById('cLim'),{type:'bar',data:{labels:M.map(x=>x.m),datasets:[
-    {label:'Necessário',data:M.map(x=>x.limNec/1e6),backgroundColor:'#3ea6ff',borderRadius:4},
-    {label:'Disponível',data:M.map(x=>x.limProp/1e6),backgroundColor:'#5a6b7d',borderRadius:4},
-  ]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{position:'top'},
-    tooltip:{callbacks:{label:c=>c.dataset.label+': R$ '+c.parsed.x.toFixed(2)+' mi'}}},scales:{x:{ticks:{callback:v=>v+' mi'}}}}});
-
-  // tabela marca
-  document.getElementById('tabMarca').innerHTML=M.map(x=>`<tr>
-    <td>${x.m}</td><td>${BRL0(x.venda)}</td><td>${BRL0(x.limNec)}</td><td>${BRL0(x.limProp)}</td>
-    <td><span class="pill ${statCls(x.disp)}">${PC(x.disp)}</span></td>
-    <td><span class="pill ${statCls(x.disp)}">${statTxt(x.disp)}</span></td></tr>`).join('');
-  document.getElementById('tabMarcaFoot').innerHTML=`<tr><td>Total (${M.length})</td>
-    <td>${BRL0(totVenda)}</td><td>${BRL0(totNec)}</td><td>${BRL0(totProp)}</td>
-    <td><span class="pill ${statCls(dispGeral)}">${PC(dispGeral)}</span></td><td></td></tr>`;
-
-  renderDet();
-  renderInsights(M,nRisco,nAt,dispGeral,totNec,totProp);
-}
-
-// chips empresa
+// chips empresa (topo)
 const chipsEmp=document.getElementById('chipsEmp');
 ['Todas','GO','PR','RJ','SP'].forEach(e=>{
   const c=document.createElement('div');c.className='chip'+(e==='Todas'?' active':'');c.textContent=e;c.dataset.v=e;
-  c.onclick=()=>{fEmp=e;document.querySelectorAll('#chipsEmp .chip').forEach(x=>x.classList.toggle('active',x.dataset.v===e));renderDet();};
+  c.onclick=()=>{fEmp=e;render();};
   chipsEmp.appendChild(c);
 });
-function dispMarca(name){const mm=marcas().find(x=>x.m===name);return mm?mm.disp:0;}
+
+function render(){
+  document.querySelectorAll('#chipsEmp .chip').forEach(c=>c.classList.toggle('active',c.dataset.v===fEmp));
+  const scope = fEmp==='Todas'?'Todas as empresas':EMP_NAME[fEmp];
+  document.getElementById('scopeTxt').textContent=scope;
+  document.getElementById('hInsScope').textContent='— '+scope;
+  const rs=rowsF();
+
+  // faixas DDE
+  const faixas={'Crítico':0,'Baixo':0,'Adequado':0,'Excesso':0};
+  rs.forEach(r=>faixas[ddeFaixa(r.dde)]++);
+  const critBaixo=faixas['Crítico']+faixas['Baixo'];
+  // marcas presentes no recorte e cobertura
+  const marcasSet=[...new Set(rs.map(r=>r.m))];
+  const marcasInsuf=marcasSet.filter(m=>cobOf(m)<1);
+  const riscoAlto=rs.filter(r=>veredito(r).t==='Risco alto').length;
+
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi"><div class="lbl">Itens analisados</div><div class="val">${rs.length}</div><div class="delta">${fEmp==='Todas'?'marca × empresa':'marcas em '+fEmp}</div></div>
+    <div class="kpi"><div class="lbl">Estoque baixo/crítico</div><div class="val neg">${critBaixo}</div><div class="delta">DDE &lt; 50 dias</div></div>
+    <div class="kpi"><div class="lbl">Excesso de estoque</div><div class="val exc">${faixas['Excesso']}</div><div class="delta">DDE &gt; 100 dias</div></div>
+    <div class="kpi"><div class="lbl">Marcas sem limite p/ comprar</div><div class="val neg">${marcasInsuf.length}</div><div class="delta">cobertura &lt; 100%</div></div>
+    <div class="kpi"><div class="lbl">Itens em risco alto</div><div class="val neg">${riscoAlto}</div><div class="delta">estoque baixo + limite curto</div></div>`;
+
+  // doughnut DDE
+  if(charts.cDDE)charts.cDDE.destroy();
+  charts.cDDE=new Chart(document.getElementById('cDDE'),{type:'doughnut',data:{
+    labels:Object.keys(faixas),datasets:[{data:Object.values(faixas),
+      backgroundColor:Object.keys(faixas).map(k=>ddeColor[k]),borderColor:'#18222e',borderWidth:2}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>c.label+': '+c.parsed+' itens'}}}}});
+
+  // DDE por marca (média no recorte)
+  const byM={};rs.forEach(r=>{(byM[r.m]=byM[r.m]||[]).push(r.dde);});
+  const Mdde=Object.entries(byM).map(([m,a])=>({m,dde:a.reduce((x,y)=>x+y,0)/a.length})).sort((a,b)=>a.dde-b.dde);
+  if(charts.cDDEmarca)charts.cDDEmarca.destroy();
+  charts.cDDEmarca=new Chart(document.getElementById('cDDEmarca'),{type:'bar',data:{labels:Mdde.map(x=>x.m),
+    datasets:[{data:Mdde.map(x=>Math.round(x.dde)),backgroundColor:Mdde.map(x=>ddeColor[ddeFaixa(x.dde)]),borderRadius:4}]},
+    options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>c.parsed.x+' dias de estoque'}}},
+      scales:{x:{grid:{color:ctx=>ctx.tick.value===50?'rgba(255,93,93,.6)':'rgba(255,255,255,.06)'},ticks:{callback:v=>v+'d'}}}}});
+
+  // cobertura limite por marca (recorte)
+  const Mcob=marcasSet.map(m=>({m,cob:cobOf(m)})).sort((a,b)=>a.cob-b.cob);
+  if(charts.cCob)charts.cCob.destroy();
+  charts.cCob=new Chart(document.getElementById('cCob'),{type:'bar',data:{labels:Mcob.map(x=>x.m),
+    datasets:[{data:Mcob.map(x=>x.cob*100),backgroundColor:Mcob.map(x=>cobColor(x.cob)),borderRadius:4}]},
+    options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>c.parsed.x.toFixed(0)+'% (disponível ÷ necessário)'}}},
+      scales:{x:{suggestedMax:260,grid:{color:ctx=>ctx.tick.value===100?'rgba(255,93,93,.6)':'rgba(255,255,255,.06)'},ticks:{callback:v=>v+'%'}}}}});
+
+  renderDet();
+  renderInsights(rs,faixas,marcasSet,marcasInsuf,scope);
+}
+
 function renderDet(){
-  let rows=ROWS.filter(r=>fEmp==='Todas'||r.e===fEmp).map(r=>({...r,disp:dispMarca(r.m)}));
+  let rows=rowsF().map(r=>{const v=veredito(r);return {...r,cob:cobOf(r.m),vord:v.ord,vt:v.t,vcls:v.cls};});
   rows.sort((a,b)=>{const va=a[sortK],vb=b[sortK];return (typeof va==='string'?va.localeCompare(vb):(va>vb?1:-1))*sortDir;});
   document.getElementById('tabDet').innerHTML=rows.map(r=>{
-    const low=r.ddeAtual<DDE_NEC; const lowCls=r.ddeAtual<DDE_NEC*0.5?'neg':(low?'warn':'pos');
+    const f=ddeFaixa(r.dde);
     return `<tr>
-    <td>${r.m}</td><td>${r.e}</td><td>${BRL0(r.venda)}</td>
-    <td><span class="pill ${lowCls}">${r.ddeAtual}</span></td><td>${DDE_NEC}</td>
-    <td>${BRL0(r.limNec)}</td><td>${BRL0(r.limProp)}</td>
-    <td><span class="pill ${statCls(r.disp)}">${PC(r.disp)}</span></td></tr>`;}).join('');
+      <td>${r.m}</td><td>${r.e}</td><td>${BRL0(r.venda)}</td>
+      <td>${r.dde}d</td><td><span class="pill ${ddeCls[f]}">${f}</span></td>
+      <td>${PC(r.cob)}</td><td><span class="pill ${cobCls(r.cob)}">${cobFaixa(r.cob)}</span></td>
+      <td><span class="pill ${r.vcls}">${r.vt}</span></td></tr>`;}).join('');
 }
 document.querySelectorAll('thead th[data-k]').forEach(th=>{
   th.onclick=()=>{const k=th.dataset.k;if(sortK===k)sortDir*=-1;else{sortK=k;sortDir=(k==='m'||k==='e')?1:-1;}renderDet();};
 });
 
 function card(kind,tag,tagcls,title,body){return `<div class="ins ${kind}"><h4><span class="tag ${tagcls}">${tag}</span> ${title}</h4><p>${body}</p></div>`;}
-function renderInsights(M,nRisco,nAt,dispGeral,totNec,totProp){
+function renderInsights(rs,faixas,marcasSet,marcasInsuf,scope){
   const out=[];
-  const risco=M.filter(x=>x.disp>1).sort((a,b)=>b.disp-a.disp);
-  if(risco.length){
-    out.push(card('alert','Crítico','neg',`${risco.length} marca(s) com limite insuficiente`,
-      `${risco.map(x=>x.m+' ('+PC(x.disp)+')').join(', ')} — a necessidade de compra supera o limite disponível. Sem aumento de limite junto à indústria, há <strong>risco de faltar estoque</strong> para sustentar a venda.`));
+  const ra=rs.filter(r=>veredito(r).t==='Risco alto').sort((a,b)=>a.dde-b.dde);
+  if(ra.length){
+    out.push(card('alert','Risco alto','neg',`${ra.length} item(ns): estoque baixo E limite insuficiente`,
+      `Precisam de produto e o limite não cobre a compra: ${ra.slice(0,6).map(r=>r.m+'/'+r.e+' ('+r.dde+'d)').join(', ')}${ra.length>6?'…':''}. Prioridade máxima — negociar limite + repor.`));
   }
-  const at=M.filter(x=>x.disp>=0.85&&x.disp<=1).sort((a,b)=>b.disp-a.disp);
-  if(at.length){
-    out.push(card('watch','Atenção','warn',`${at.length} marca(s) perto do teto`,
-      `${at.map(x=>x.m+' ('+PC(x.disp)+')').join(', ')} estão entre 85% e 100% do limite — pouca folga. Monitorar, sobretudo as de alto volume.`));
+  const insuf=marcasInsuf.map(m=>({m,cob:cobOf(m)})).sort((a,b)=>a.cob-b.cob);
+  if(insuf.length){
+    out.push(card('alert','Limite','neg',`${insuf.length} marca(s) sem limite para comprar o necessário`,
+      `${insuf.map(x=>x.m+' ('+PC(x.cob)+')').join(', ')} — cobertura abaixo de 100%. A compra de reposição esbarra no limite da indústria.`));
   }
-  out.push(card('good','Visão geral','pos',`Disponibilidade geral em ${PC(dispGeral)}`,
-    `No agregado das marcas com limite, a necessidade (R$ ${MI(totNec)} mi) está ${dispGeral<=1?'dentro':'acima'} do limite disponível (R$ ${MI(totProp)} mi). ${dispGeral<=1?'Há folga no consolidado, mas concentrada — o risco está em poucas marcas.':'O limite total não cobre a necessidade.'}`));
-  // estoque atual baixo
-  const low=ROWS.filter(r=>r.ddeAtual<DDE_NEC).sort((a,b)=>a.ddeAtual-b.ddeAtual).slice(0,6);
-  if(low.length){
-    out.push(card('alert','Estoque atual','neg',`Cobertura atual baixa (DDE &lt; 50 dias)`,
-      `Reposição prioritária: ${low.map(r=>r.m+'/'+r.e+' ('+r.ddeAtual+'d)').join(', ')}. Mesmo com limite, vários itens estão abaixo dos 50 dias de estoque.`));
+  const repor=rs.filter(r=>veredito(r).t==='Repor (há limite)').sort((a,b)=>a.dde-b.dde);
+  if(repor.length){
+    out.push(card('watch','Reposição','warn',`${repor.length} item(ns) com estoque baixo mas limite OK`,
+      `Dá para repor já: ${repor.slice(0,5).map(r=>r.m+'/'+r.e+' ('+r.dde+'d)').join(', ')}.`));
   }
-  const topVenda=[...M].sort((a,b)=>b.venda-a.venda)[0];
-  out.push(card('watch','Volume','warn',`${topVenda.m} é a maior marca (R$ ${MI(topVenda.venda)} mi em maio)`,
-    `Concentra grande parte da venda e está em ${PC(topVenda.disp)} de disponibilidade — qualquer aperto de limite aqui tem impacto desproporcional no faturamento.`));
+  const exc=rs.filter(r=>ddeFaixa(r.dde)==='Excesso').sort((a,b)=>b.dde-a.dde);
+  if(exc.length){
+    out.push(card('exc','Excesso','exc',`${exc.length} item(ns) com estoque acima de 100 dias`,
+      `Capital parado / risco de validade: ${exc.slice(0,6).map(r=>r.m+'/'+r.e+' ('+r.dde+'d)').join(', ')}. Reduzir compras e priorizar giro.`));
+  }
+  out.push(card('good','Visão geral','pos',`Estoque: ${faixas['Crítico']} crítico · ${faixas['Baixo']} baixo · ${faixas['Adequado']} adequado · ${faixas['Excesso']} excesso`,
+    `${scope}: ${marcasSet.length} marca(s) com limite; ${marcasSet.length-marcasInsuf.length} com limite suficiente para comprar. O foco recai sobre os itens em "Risco alto".`));
   document.getElementById('insights').innerHTML=out.join('');
-}
-
-function drawBar(id,labels,datasets,opt){
-  if(charts[id])charts[id].destroy();
-  charts[id]=new Chart(document.getElementById(id),{type:'bar',data:{labels,datasets},
-    options:{indexAxis:opt.horizontal?'y':'x',maintainAspectRatio:false,plugins:{legend:{display:false},
-      tooltip:{callbacks:{label:c=>(opt.horizontal?c.parsed.x:c.parsed.y).toFixed(0)+'% (necessário ÷ disponível)'}}},
-      scales:opt.horizontal
-        ?{x:{suggestedMax:Math.max(120,...datasets[0].data)+10,ticks:{callback:v=>v+'%'},
-            grid:{color:ctx=>ctx.tick.value===opt.refline?'rgba(255,93,93,.6)':'rgba(255,255,255,.06)'}}}
-        :{y:{ticks:{callback:v=>v+'%'}}}}});
 }
 
 render();
