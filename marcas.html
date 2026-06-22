@@ -74,13 +74,12 @@
   </header>
 
   <div class="filterbar">
-    <div class="fgroup"><span class="lbl">Período</span><div class="chips" id="chipsPer"></div></div>
     <div class="fgroup"><span class="lbl">Empresa</span><div class="chips" id="chipsEmp"></div></div>
     <span class="scope" id="scopeTxt"></span>
   </div>
 
   <div class="note">
-    <b>Estoque (dias):</b> Total e Disponível por marca, e <b>Lead</b> (dias de reposição da indústria) — fonte aba ANALISE LIMITES IND. <b>DDE</b> = dias de estoque por empresa (necessário 50). <b>Limite:</b> Cobertura = Limite Prop. Compartilhado ÷ Necessário (= Disponibilidade Proporcional Comp.); abaixo de 100% o limite não cobre a compra. Período define a demanda: <b>Maio (realizado)</b> ou <b>Junho (meta)</b>. Só marcas com limite definido (linhas sem informação excluídas).
+    <b>Estoque (dias):</b> Total e Disponível por marca, e <b>Lead</b> (dias de reposição da indústria) — fonte aba ANALISE LIMITES IND. <b>DDE</b> = dias de estoque por empresa (necessário 50). <b>Limite:</b> Cobertura = Limite Prop. Compartilhado ÷ Necessário (= Disponibilidade Proporcional Comp.); abaixo de 100% o limite não cobre a compra. Base de demanda: <b>meta de junho</b>. Só marcas com limite definido (linhas sem informação excluídas).
   </div>
 
   <div class="kpis" id="kpis"></div>
@@ -173,11 +172,6 @@ function veredito(r){
   return {t:'OK',cls:'pos',ord:4};
 }
 
-const chipsPer=document.getElementById('chipsPer');
-[['Maio (realizado)','mai'],['Junho (meta)','jun']].forEach(([lbl,v])=>{
-  const c=document.createElement('div');c.className='chip'+(v===fPer?' active':'');c.textContent=lbl;c.dataset.v=v;
-  c.onclick=()=>{fPer=v;render();};chipsPer.appendChild(c);
-});
 const chipsEmp=document.getElementById('chipsEmp');
 ['Todas','GO','PR','RJ','SP'].forEach(e=>{
   const c=document.createElement('div');c.className='chip'+(e==='Todas'?' active':'');c.textContent=e;c.dataset.v=e;
@@ -185,9 +179,8 @@ const chipsEmp=document.getElementById('chipsEmp');
 });
 
 function render(){
-  document.querySelectorAll('#chipsPer .chip').forEach(c=>c.classList.toggle('active',c.dataset.v===fPer));
   document.querySelectorAll('#chipsEmp .chip').forEach(c=>c.classList.toggle('active',c.dataset.v===fEmp));
-  const scope = PER_NAME[fPer]+' · '+(fEmp==='Todas'?'todas as empresas':EMP_NAME[fEmp]);
+  const scope = 'Junho (meta) · '+(fEmp==='Todas'?'todas as empresas':EMP_NAME[fEmp]);
   document.getElementById('scopeTxt').textContent=scope;
   document.getElementById('hInsScope').textContent='— '+scope;
   document.getElementById('hVal').textContent= fPer==='jun'?'Meta Junho':'Venda Maio';
