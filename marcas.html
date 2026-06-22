@@ -37,7 +37,7 @@
   .card .cap{color:var(--muted);font-size:12.5px;margin-bottom:13px}
   .chart-box{position:relative;height:320px}
   table{width:100%;border-collapse:collapse;font-size:12.5px}
-  th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line)}
+  th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
   th:first-child,td:first-child{text-align:left}
   thead th{color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.02em;cursor:pointer;user-select:none}
   thead th:hover{color:var(--ink)}
@@ -60,6 +60,16 @@
   .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-top:8px}
   .legend span{display:inline-flex;align-items:center;gap:6px}
   .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+  /* tabela completa */
+  .fulltbl-wrap{overflow:auto;max-height:640px;border:1px solid var(--line);border-radius:10px}
+  #full{font-size:11.5px}
+  #full thead th{position:sticky;top:0;background:#141d28;z-index:2;padding:6px 7px;border-bottom:1px solid var(--line)}
+  #full thead tr.flt th{top:28px;background:#101824;padding:3px 5px}
+  #full thead input{width:100%;min-width:70px;background:var(--card2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:11px;padding:3px 5px}
+  #full td{padding:5px 7px;border-bottom:1px solid rgba(255,255,255,.05)}
+  #full td.txt{text-align:left}
+  .help{cursor:help;border-bottom:1px dotted var(--muted)}
+  .tblinfo{font-size:12px;color:var(--muted);margin-bottom:8px}
   footer{margin-top:38px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
   @media(max-width:820px){.grid2,.insights{grid-template-columns:1fr}.scope{margin-left:0}}
 </style>
@@ -79,7 +89,7 @@
   </div>
 
   <div class="note">
-    Fonte: aba <b>ANALISE LIMITES IND JUNHO</b>. <b>DDE</b> = dias de estoque (necessário e atual por empresa). <b>Estoque total / disponível</b> e <b>Lead</b> (dias de reposição) por marca. <b>Cobertura de limite</b> = LIMITE PROP. COMPARTILHADO ÷ LIMITE NECESSÁRIO (= Disponibilidade Proporcional Comp.); abaixo de 100% o limite não cobre a compra. Só marcas com limite definido (linhas "sem informação" excluídas).
+    Fonte: aba <b>ANALISE LIMITES IND JUNHO</b>. A análise abaixo considera apenas marcas <b>com limite definido</b>; a <b>tabela completa</b> no final traz todas as marcas (inclusive "sem informação"), com filtro por coluna e explicação dos cálculos.
   </div>
 
   <div class="kpis" id="kpis"></div>
@@ -99,7 +109,7 @@
     </div>
     <div class="card">
       <h3>DDE necessário × atual por marca (dias)</h3>
-      <div class="cap">DDE atual = média das empresas do recorte · necessário 40–50 por marca</div>
+      <div class="cap">DDE atual = média das empresas do recorte</div>
       <div class="chart-box"><canvas id="cEst"></canvas></div>
     </div>
   </div>
@@ -111,50 +121,72 @@
     <div class="chart-box" style="height:360px"><canvas id="cCob"></canvas></div>
   </div>
 
-  <h2>3. Veredito por item</h2>
+  <h2>3. Veredito por item (marcas com limite)</h2>
   <div class="card">
-    <div style="max-height:560px;overflow:auto">
+    <div style="max-height:520px;overflow:auto">
       <table>
         <thead><tr>
           <th data-k="m">Marca</th><th data-k="e">Emp.</th><th data-k="venda">Meta Jun</th>
           <th data-k="dde">DDE atual</th><th data-k="ddeNec">DDE nec</th><th>Estoque</th>
-          <th data-k="cob">Cob. lim.</th><th>Limite</th>
-          <th data-k="lead">Lead</th><th data-k="estTot">Est.tot</th><th data-k="estDisp">Est.disp</th>
-          <th data-k="vord">Veredito</th>
+          <th data-k="cob">Cob. lim.</th><th>Limite</th><th data-k="vord">Veredito</th>
         </tr></thead>
         <tbody id="tabDet"></tbody>
       </table>
     </div>
   </div>
 
+  <h2>4. Tabela completa — ANALISE LIMITES IND JUNHO</h2>
+  <div class="tblinfo">Passe o mouse sobre os cabeçalhos <span class="help">tracejados</span> para ver o cálculo. Use os campos abaixo de cada coluna para filtrar. <span id="fullCount"></span></div>
+  <div class="fulltbl-wrap">
+    <table id="full"><thead id="fullHead"></thead><tbody id="fullBody"></tbody></table>
+  </div>
+
   <h2>Insights <span id="hInsScope" style="color:var(--muted);font-weight:400;font-size:14px"></span></h2>
   <div class="insights" id="insights"></div>
 
   <footer>
-    Fonte: aba ANALISE LIMITES IND JUNHO. Cobertura = Limite Prop. Compartilhado ÷ Necessário. DDE/estoque/lead em dias. Apenas marcas com limite definido. Gerado em 17/06/2026.
+    Fonte: aba ANALISE LIMITES IND JUNHO. Cobertura = Limite Prop. Compartilhado ÷ Necessário. DDE/estoque/lead em dias. Gerado em 17/06/2026.
   </footer>
 </div>
 
 <script>
-// [marca, empresa, metaJun, ddeAtual, ddeNec, limNec, limProp, lead, estTot, estDisp]
-const ROWS=[["NEOQ","GO",3268141,80,40,5002256,5438050,7,36,29],["NEOQ","PR",2906010,46,40,4447974,4835480,7,36,29],["NEOQ","RJ",1851877,21,40,2834506,3081447,7,36,29],["NEOQ","SP",10003269,19,40,15311126,16645023,7,36,29],["LEGRAND (S)","GO",297604,23,50,607354,864367,7,57,50],["LEGRAND (S)","PR",239543,22,50,488862,695733,7,57,50],["LEGRAND (S)","RJ",80081,45,50,163430,232589,7,57,50],["LEGRAND (S)","SP",542965,25,50,1108092,1577000,7,57,50],["EURO","GO",3298196,45,40,6731013,5163556,15,54,39],["EURO","PR",294787,42,40,601607,461510,15,54,39],["EURO","RJ",577501,68,40,1178573,904118,15,54,39],["EURO","SP",4771948,13,40,9738669,7470817,15,54,39],["GEOLAB","GO",897908,35,50,2061523,1240321,7,64,57],["GEOLAB","PR",222026,24,50,509753,306694,7,64,57],["GEOLAB","RJ",810422,51,50,1860663,1119473,7,64,57],["GEOLAB","SP",603405,42,50,1385369,833511,7,64,57],["PHARLAB","GO",362267,90,50,831736,533718,7,64,57],["PHARLAB","PR",140326,74,50,322177,206738,7,64,57],["PHARLAB","RJ",315544,106,50,724463,464882,7,64,57],["PHARLAB","SP",539386,116,50,1238385,794662,7,64,57],["SANDOZ","GO",359069,335,50,824394,1128345,7,64,57],["SANDOZ","PR",43472,149,50,99809,136608,7,64,57],["SANDOZ","RJ",142325,101,50,326767,447245,7,64,57],["SANDOZ","SP",1205379,59,50,2767453,3787802,7,64,57],["BIOLAB","GO",144351,194,50,331419,811447,7,64,57],["BIOLAB","SP",211436,65,50,485440,1188553,7,64,57],["MULTILAB","GO",343448,52,50,700913,997517,7,57,50],["MULTILAB","PR",297885,76,50,607930,865185,7,57,50],["MULTILAB","RJ",143643,51,50,293148,417199,7,57,50],["MULTILAB","SP",306517,48,50,625544,890254,7,57,50],["NATULAB","GO",299487,38,50,572999,275932,7,54,47],["NATULAB","PR",241237,39,50,461551,222263,7,54,47],["NATULAB","RJ",266290,51,50,509484,245346,7,54,47],["NATULAB","SP",495427,18,50,947884,456460,7,54,47],["EMS","GO",39561,10,50,80736,114901,7,57,50],["EMS","PR",120029,49,50,244956,348614,7,57,50],["EMS","RJ",14654,51,50,29906,42562,7,57,50],["EMS","SP",122280,48,50,249550,355151,7,57,50],["LEGRAND (G)","PR",77636,13,50,178246,225488,7,64,57],["LEGRAND (G)","RJ",236062,25,50,541978,685623,7,64,57],["LEGRAND (G)","SP",363678,63,50,834974,1056273,7,64,57],["GERMED","GO",217442,875,50,332819,631543,7,43,36]];
-function mapR(a){return a.map(r=>({m:r[0],e:r[1],venda:r[2],dde:r[3],ddeNec:r[4],limNec:r[5],limProp:r[6],lead:r[7],estTot:r[8],estDisp:r[9]}));}
-const DATA=mapR(ROWS);
+const COLS=["MARCA","EMPRESA","2025","2026","% CRESC.","VENDA TRI","SHARE 1% TRI","SHARE REVISÃO","META JUNHO","VMD","CUSTO %","CMV DIA","PRAZO IND","DDE NECES.","DDE ATUAL","ESTOQUE NECESSARIO","LIMITE NECESSARIO","LIMITE INDUSTRIA","DISPONIBILIDADE","OBS","ESTOQUE TOTAL","LEAD","ESTOQUE DISPONIVEL","LIMITE PROPORCIONAL","DISPONIBILIDADE PROPORCIONAL","LIMITE PROP. COMPARTILHADO","DISPONIBILIDADE PROPORCIONAL COMP."];
+const TIP={4:"(2026 − 2025) ÷ 2025",6:"Share do 1% do trimestre",7:"Share aplicado na revisão",8:"Meta de venda de junho (R$)",9:"VMD = Meta Junho ÷ 21 dias úteis",10:"Custo sobre a venda (CMV)",11:"CMV dia = VMD × Custo%",12:"Prazo de pagamento da indústria (dias)",13:"DDE necessário: dias de estoque alvo",14:"DDE atual = estoque atual ÷ CMV dia (dias de cobertura)",15:"Estoque necessário (R$) = CMV dia × DDE necessário",16:"Limite necessário p/ sustentar a compra (R$)",17:"Limite total concedido pela indústria (R$)",18:"Disponibilidade = Limite Indústria ÷ Limite Necessário",20:"Estoque total atual (dias)",21:"Lead: dias de reposição da indústria",22:"Estoque disponível = Estoque total − Lead (dias)",23:"Limite proporcional ao share da marca (R$)",24:"Disponibilidade proporcional = Limite Proporcional ÷ Necessário",25:"Limite proporcional considerando indústrias que compartilham limite (R$)",26:"Cobertura = Limite Prop. Compartilhado ÷ Limite Necessário (≥100% = limite cobre a compra)"};
+const PCTCOL=new Set([4,6,7,10,18,24,26]);
+const INTCOL=new Set([12,13,14,21]);
+const RAW=__DATA27__;
+
 const EMP_NAME={GO:'FARMA GO',PR:'FARMA PR',RJ:'FARMA RJ',SP:'FARMA SP'};
+const shortE=e=>String(e||'').replace('FARMA ','').trim();
+const num=v=>typeof v==='number'&&isFinite(v);
+const fmt=(v,c)=>{
+  if(v==null||v==='')return '';
+  if(typeof v==='string')return v.trim();
+  if(PCTCOL.has(c))return (v*100).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:2})+'%';
+  if(INTCOL.has(c))return Math.round(v).toLocaleString('pt-BR');
+  return v.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:2});
+};
 const BRL0=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
 const PC=v=>(v*100).toFixed(0)+'%';
 Chart.defaults.color='#93a4b5';Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";Chart.defaults.borderColor='rgba(255,255,255,.06)';
 let charts={}, fEmp='Todas', sortK='vord', sortDir=1;
 
-function rowsF(){return DATA.filter(r=>fEmp==='Todas'||r.e===fEmp);}
+// ---- subconjunto p/ análise: marcas com limite (LIMITE PROP. COMPARTILHADO numérico) ----
+const SUB=RAW.filter(r=>num(r[25])&&num(r[16])&&r[16]>0).map(r=>({
+  m:String(r[0]).trim(), e:shortE(r[1]), venda:num(r[8])?r[8]:0,
+  dde:num(r[14])?Math.round(r[14]):null, ddeNec:num(r[13])?Math.round(r[13]):50,
+  limNec:r[16], limProp:r[25], lead:num(r[21])?Math.round(r[21]):null,
+  estTot:num(r[20])?Math.round(r[20]):null, estDisp:num(r[22])?Math.round(r[22]):null
+}));
+function rowsF(){return SUB.filter(r=>fEmp==='Todas'||r.e===fEmp);}
 function ddeFaixa(at,nec){const n=nec||50;if(at==null)return 'Adequado';return at<n*0.5?'Crítico':(at<n?'Baixo':(at<=n*2?'Adequado':'Excesso'));}
 const ddeCls={'Crítico':'neg','Baixo':'warn','Adequado':'pos','Excesso':'exc'};
 const ddeColor={'Crítico':'#ff5d5d','Baixo':'#ffb020','Adequado':'#2ecc71','Excesso':'#7c5cff'};
-function cobOf(name){const rs=DATA.filter(r=>r.m===name);const n=rs.reduce((s,r)=>s+r.limNec,0),p=rs.reduce((s,r)=>s+r.limProp,0);return n?p/n:0;}
+function cobOf(name){const rs=SUB.filter(r=>r.m===name);const n=rs.reduce((s,r)=>s+r.limNec,0),p=rs.reduce((s,r)=>s+r.limProp,0);return n?p/n:0;}
 const cobFaixa=c=>c>=1.15?'Folga':(c>=1?'Atenção':'Insuficiente');
 const cobCls=c=>c>=1.15?'pos':(c>=1?'warn':'neg');
 const cobColor=c=>c>=1.15?'#2ecc71':(c>=1?'#ffb020':'#ff5d5d');
-const marcaInfo=name=>{const r=DATA.find(x=>x.m===name);return r?{lead:r.lead,estTot:r.estTot,estDisp:r.estDisp,ddeNec:r.ddeNec}:null;};
+const marcaInfo=name=>{const r=SUB.find(x=>x.m===name);return r?{lead:r.lead,estTot:r.estTot,estDisp:r.estDisp,ddeNec:r.ddeNec}:null;};
 function veredito(r){
   const f=ddeFaixa(r.dde,r.ddeNec), ci=cobOf(r.m)<1;
   if(f==='Excesso') return {t:'Excesso de estoque',cls:'exc',ord:5};
@@ -186,7 +218,7 @@ function render(){
   const estBaixo=marcasSet.filter(m=>{const x=marcaInfo(m);return x&&x.estDisp!=null&&x.estDisp<x.ddeNec;});
 
   document.getElementById('kpis').innerHTML=`
-    <div class="kpi"><div class="lbl">Itens analisados</div><div class="val">${rs.length}</div><div class="delta">${fEmp==='Todas'?'marca × empresa':'marcas em '+fEmp}</div></div>
+    <div class="kpi"><div class="lbl">Itens (com limite)</div><div class="val">${rs.length}</div><div class="delta">${marcasSet.length} marcas</div></div>
     <div class="kpi"><div class="lbl">Estoque baixo/crítico</div><div class="val neg">${critBaixo}</div><div class="delta">DDE atual &lt; necessário</div></div>
     <div class="kpi"><div class="lbl">Marcas sem limite p/ comprar</div><div class="val neg">${marcasInsuf.length}</div><div class="delta">cobertura &lt; 100%</div></div>
     <div class="kpi"><div class="lbl">Marcas est. disp &lt; nec.</div><div class="val warn">${estBaixo.length}</div><div class="delta">estoque disponível abaixo do ideal</div></div>
@@ -197,15 +229,14 @@ function render(){
     labels:Object.keys(faixas),datasets:[{data:Object.values(faixas),backgroundColor:Object.keys(faixas).map(k=>ddeColor[k]),borderColor:'#18222e',borderWidth:2}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+c.parsed+' itens'}}}}});
 
-  const byMarca={};rs.forEach(r=>{(byMarca[r.m]=byMarca[r.m]||[]).push(r);});
-  const em=Object.entries(byMarca).map(([m,arr])=>{const at=Math.round(arr.reduce((s,x)=>s+(x.dde||0),0)/arr.length);return {m,nec:arr[0].ddeNec,at};}).sort((a,b)=>(a.at-a.nec)-(b.at-b.nec));
+  const byM={};rs.forEach(r=>{(byM[r.m]=byM[r.m]||[]).push(r);});
+  const em=Object.entries(byM).map(([m,arr])=>{const at=Math.round(arr.reduce((s,x)=>s+(x.dde||0),0)/arr.length);return {m,nec:arr[0].ddeNec,at};}).sort((a,b)=>(a.at-a.nec)-(b.at-b.nec));
   const atColor=(at,nec)=>at<nec*0.5?'#ff5d5d':(at<nec?'#ffb020':(at<=nec*2?'#2ecc71':'#7c5cff'));
   if(charts.cEst)charts.cEst.destroy();
   charts.cEst=new Chart(document.getElementById('cEst'),{type:'bar',data:{labels:em.map(x=>x.m),datasets:[
     {label:'DDE atual',data:em.map(x=>x.at),backgroundColor:em.map(x=>atColor(x.at,x.nec)),borderRadius:4},
     {label:'DDE necessário',data:em.map(x=>x.nec),backgroundColor:'#5a6b7d',borderRadius:4},
-  ]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.x+'d'}}},
-    scales:{x:{ticks:{callback:v=>v+'d'}}}}});
+  ]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.x+'d'}}},scales:{x:{ticks:{callback:v=>v+'d'}}}}});
 
   const Mcob=marcasSet.map(m=>({m,cob:cobOf(m)})).sort((a,b)=>a.cob-b.cob);
   if(charts.cCob)charts.cCob.destroy();
@@ -223,12 +254,9 @@ function renderDet(){
   rows.sort((a,b)=>{const va=a[sortK],vb=b[sortK];if(va==null)return 1;if(vb==null)return -1;return (typeof va==='string'?va.localeCompare(vb):(va>vb?1:-1))*sortDir;});
   document.getElementById('tabDet').innerHTML=rows.map(r=>{
     const f=ddeFaixa(r.dde,r.ddeNec);
-    const ed=r.estDisp; const edCls=ed==null?'':(ed<r.lead?'neg':(ed<r.ddeNec?'warn':'pos'));
     return `<tr><td>${r.m}</td><td>${r.e}</td><td>${BRL0(r.venda)}</td>
       <td>${r.dde!=null?r.dde+'d':'-'}</td><td>${r.ddeNec}d</td><td><span class="pill ${ddeCls[f]}">${f}</span></td>
       <td>${PC(r.cob)}</td><td><span class="pill ${cobCls(r.cob)}">${cobFaixa(r.cob)}</span></td>
-      <td>${r.lead!=null?r.lead+'d':'-'}</td><td>${r.estTot!=null?r.estTot+'d':'-'}</td>
-      <td>${ed!=null?'<span class="pill '+edCls+'">'+ed+'d</span>':'-'}</td>
       <td><span class="pill ${r.vcls}">${r.vt}</span></td></tr>`;}).join('');
 }
 document.querySelectorAll('thead th[data-k]').forEach(th=>{
@@ -240,21 +268,45 @@ function renderInsights(rs,faixas,marcasSet,marcasInsuf,estBaixo,scope){
   const out=[];
   const ra=rs.filter(r=>veredito(r).t==='Risco alto').sort((a,b)=>a.dde-b.dde);
   if(ra.length) out.push(card('alert','Risco alto','neg',`${ra.length} item(ns): estoque baixo E limite insuficiente`,
-      `Precisam de produto e o limite não cobre a compra: ${ra.slice(0,6).map(r=>r.m+'/'+r.e+' ('+r.dde+'d)').join(', ')}${ra.length>6?'…':''}. Prioridade máxima.`));
+      `Precisam de produto e o limite não cobre a compra: ${ra.slice(0,6).map(r=>r.m+'/'+r.e+' ('+r.dde+'d)').join(', ')}${ra.length>6?'…':''}.`));
   const insuf=marcasInsuf.map(m=>({m,cob:cobOf(m)})).sort((a,b)=>a.cob-b.cob);
   if(insuf.length) out.push(card('alert','Limite','neg',`${insuf.length} marca(s) sem limite para a meta de junho`,
-      `${insuf.map(x=>x.m+' ('+PC(x.cob)+')').join(', ')} — cobertura abaixo de 100%. A compra de reposição esbarra no limite da indústria.`));
+      `${insuf.map(x=>x.m+' ('+PC(x.cob)+')').join(', ')} — cobertura abaixo de 100%.`));
   const repor=rs.filter(r=>veredito(r).t==='Repor (há limite)').sort((a,b)=>a.dde-b.dde);
   if(repor.length) out.push(card('watch','Reposição','warn',`${repor.length} item(ns) com estoque baixo mas limite OK`,
       `Dá para repor já: ${repor.slice(0,5).map(r=>r.m+'/'+r.e+' ('+r.dde+'d)').join(', ')}.`));
   const exc=rs.filter(r=>ddeFaixa(r.dde,r.ddeNec)==='Excesso').sort((a,b)=>b.dde-a.dde);
   if(exc.length) out.push(card('exc','Excesso','exc',`${exc.length} item(ns) com estoque muito acima do necessário`,
-      `Capital parado / risco de validade: ${exc.slice(0,6).map(r=>r.m+'/'+r.e+' ('+r.dde+'d)').join(', ')}.`));
+      `Capital parado: ${exc.slice(0,6).map(r=>r.m+'/'+r.e+' ('+r.dde+'d)').join(', ')}.`));
   out.push(card('good','Visão geral','pos',`Estoque: ${faixas['Crítico']} crítico · ${faixas['Baixo']} baixo · ${faixas['Adequado']} adequado · ${faixas['Excesso']} excesso`,
-    `${scope}: ${marcasSet.length} marca(s) com limite; ${marcasSet.length-marcasInsuf.length} com limite suficiente para a meta de junho.`));
+    `${scope}: ${marcasSet.length} marca(s) com limite; ${marcasSet.length-marcasInsuf.length} com limite suficiente.`));
   document.getElementById('insights').innerHTML=out.join('');
 }
 
+// ===== Tabela completa com filtros por coluna =====
+let colFilters=COLS.map(()=> '');
+function buildFullHead(){
+  const h=document.getElementById('fullHead');
+  let r1='<tr>'+COLS.map((c,i)=>`<th${TIP[i]?' class="help" title="'+TIP[i].replace(/"/g,'&quot;')+'"':''}>${c}</th>`).join('')+'</tr>';
+  let r2='<tr class="flt">'+COLS.map((c,i)=>`<th><input data-c="${i}" placeholder="filtrar"></th>`).join('')+'</tr>';
+  h.innerHTML=r1+r2;
+  h.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{colFilters[+e.target.dataset.c]=e.target.value.toLowerCase();renderFull();}));
+}
+function renderFull(){
+  const rowsHtml=[];let shown=0;
+  for(const r of RAW){
+    const cells=COLS.map((_,i)=>fmt(r[i],i));
+    let ok=true;
+    for(let i=0;i<COLS.length;i++){if(colFilters[i]&&!cells[i].toLowerCase().includes(colFilters[i])){ok=false;break;}}
+    if(!ok)continue;shown++;
+    rowsHtml.push('<tr>'+cells.map((v,i)=>`<td class="${(i===0||i===1||i===19)?'txt':''}">${v}</td>`).join('')+'</tr>');
+  }
+  document.getElementById('fullBody').innerHTML=rowsHtml.join('');
+  document.getElementById('fullCount').textContent=shown+' de '+RAW.length+' linhas';
+}
+
+buildFullHead();
+renderFull();
 render();
 </script>
 </body>
