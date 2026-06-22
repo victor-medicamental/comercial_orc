@@ -25,10 +25,10 @@
   .note b{color:var(--ink)}
   h2{font-size:18px;font-weight:600;margin:34px 0 14px;display:flex;align-items:center;gap:10px}
   h2::before{content:"";width:4px;height:19px;background:var(--accent);border-radius:3px}
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:13px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:13px}
   .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
   .kpi .lbl{color:var(--muted);font-size:12px;font-weight:500}
-  .kpi .val{font-size:24px;font-weight:700;margin-top:5px}
+  .kpi .val{font-size:23px;font-weight:700;margin-top:5px}
   .kpi .delta{font-size:12.5px;font-weight:600;margin-top:3px;color:var(--muted)}
   .pos{color:var(--pos)}.neg{color:var(--neg)}.warn{color:var(--warn)}.exc{color:var(--exc)}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -36,13 +36,13 @@
   .card h3{font-size:15px;font-weight:600;margin-bottom:3px}
   .card .cap{color:var(--muted);font-size:12.5px;margin-bottom:13px}
   .chart-box{position:relative;height:300px}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{padding:8px 9px;text-align:right;border-bottom:1px solid var(--line)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line)}
   th:first-child,td:first-child{text-align:left}
-  thead th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;user-select:none}
+  thead th{color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.02em;cursor:pointer;user-select:none}
   thead th:hover{color:var(--ink)}
   tbody tr:hover{background:var(--card2)}
-  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11.5px;font-weight:700}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
   .pill.pos{background:rgba(46,204,113,.16);color:var(--pos)}
   .pill.neg{background:rgba(255,93,93,.16);color:var(--neg)}
   .pill.warn{background:rgba(255,176,32,.16);color:var(--warn)}
@@ -80,16 +80,16 @@
   </div>
 
   <div class="note">
-    Duas perguntas: <b>1) Estoque hoje (DDE)</b> — dias de estoque atual vs. os <b>50 dias</b> necessários. <b>2) Limite de compra</b> — <b>Cobertura = Limite disponível ÷ necessário</b>; abaixo de 100% o limite não cobre a compra. O período define a base de demanda: <b>Maio (realizado)</b> ou <b>Junho (meta)</b> — em junho a necessidade é maior, então o limite aperta. Só marcas com limite definido. Fonte: aba ANALISE LIMITES.
+    <b>Estoque (dias):</b> Total e Disponível por marca, e <b>Lead</b> (dias de reposição da indústria) — fonte aba ANALISE LIMITES IND. <b>DDE</b> = dias de estoque por empresa (necessário 50). <b>Limite:</b> Cobertura = Limite Prop. Compartilhado ÷ Necessário (= Disponibilidade Proporcional Comp.); abaixo de 100% o limite não cobre a compra. Período define a demanda: <b>Maio (realizado)</b> ou <b>Junho (meta)</b>. Só marcas com limite definido (linhas sem informação excluídas).
   </div>
 
   <div class="kpis" id="kpis"></div>
 
-  <h2>1. Estoque hoje (DDE)</h2>
+  <h2>1. Estoque hoje</h2>
   <div class="grid2">
     <div class="card">
-      <h3>Distribuição dos itens por faixa de estoque</h3>
-      <div class="cap">referência: 50 dias necessários · DDE atual (não muda com o período)</div>
+      <h3>Distribuição dos itens por faixa de DDE</h3>
+      <div class="cap">por empresa · referência 50 dias</div>
       <div class="chart-box"><canvas id="cDDE"></canvas></div>
       <div class="legend">
         <span><i class="dot" style="background:#ff5d5d"></i>Crítico &lt;25d</span>
@@ -99,27 +99,29 @@
       </div>
     </div>
     <div class="card">
-      <h3>DDE por marca</h3>
-      <div class="cap">dias de estoque · linha = 50d necessário</div>
-      <div class="chart-box"><canvas id="cDDEmarca"></canvas></div>
+      <h3>Estoque disponível por marca (dias)</h3>
+      <div class="cap">marca consolidada · linha vermelha = 50d · barra clara = lead de reposição</div>
+      <div class="chart-box"><canvas id="cEst"></canvas></div>
     </div>
   </div>
 
   <h2 id="hLim">2. Limite de compra por marca</h2>
   <div class="card">
     <h3>Cobertura de limite (disponível ÷ necessário)</h3>
-    <div class="cap" id="capCob">linha = 100% · abaixo de 100% o limite NÃO cobre a compra necessária (risco)</div>
+    <div class="cap" id="capCob">linha = 100% · abaixo de 100% o limite não cobre a compra necessária (risco)</div>
     <div class="chart-box" style="height:340px"><canvas id="cCob"></canvas></div>
   </div>
 
-  <h2>3. Veredito por item (estoque + limite)</h2>
+  <h2>3. Veredito por item</h2>
   <div class="card">
-    <div style="max-height:520px;overflow:auto">
+    <div style="max-height:540px;overflow:auto">
       <table>
         <thead><tr>
           <th data-k="m">Marca</th><th data-k="e">Emp.</th><th data-k="venda" id="hVal">Venda Maio</th>
           <th data-k="dde">DDE</th><th>Estoque</th>
-          <th data-k="cob">Cob. limite</th><th>Limite</th><th data-k="vord">Veredito</th>
+          <th data-k="cob">Cob. lim.</th><th>Limite</th>
+          <th data-k="lead">Lead</th><th data-k="estTot">Est.tot</th><th data-k="estDisp">Est.disp</th>
+          <th data-k="vord">Veredito</th>
         </tr></thead>
         <tbody id="tabDet"></tbody>
       </table>
@@ -130,58 +132,16 @@
   <div class="insights" id="insights"></div>
 
   <footer>
-    Fonte: aba ANALISE LIMITES (Maio realizado e Junho meta). DDE = dias de estoque (necessário 50). Cobertura de limite = Limite Proporcional Compartilhado ÷ Limite Necessário (por marca). Apenas marcas com limite definido. Gerado em 17/06/2026.
+    Fonte: abas ANALISE LIMITES JUNHO / MAIO (limite e demanda por empresa) e ANALISE LIMITES IND (LEAD e estoque por marca). Cobertura = Limite Prop. Compartilhado ÷ Necessário. Estoque/Lead em dias. Apenas marcas com limite definido. Gerado em 17/06/2026.
   </footer>
 </div>
 
 <script>
-// [marca, empresa, valor(venda/meta), dde, limNec, limProp]
-const ROWS_MAI=[
-  ['BIOLAB','GO',187110.14,196,451069,953225],['BIOLAB','PR',14580.14,969,35149,74278],
-  ['BIOLAB','RJ',97837.83,148,235859,498431],['BIOLAB','SP',93055.17,63,224329,474066],
-  ['EMS','GO',33170.64,7,71080,127847],['EMS','PR',110768.40,58,237361,426925],
-  ['EMS','RJ',13523.53,66,28979,52123],['EMS','SP',102586.92,51,219829,395391],
-  ['EURO','GO',5407606.59,39,13905274,14109072],['EURO','PR',272044.30,45,699542,709795],
-  ['EURO','RJ',532946.55,58,1370434,1390519],['EURO','SP',1836105.88,12,4721415,4790613],
-  ['GEOLAB','GO',690288.21,36,1664088,1224391],['GEOLAB','PR',155224.51,23,374202,275328],
-  ['GEOLAB','RJ',679907.05,51,1639062,1205977],['GEOLAB','SP',447813.77,33,1079551,794304],
-  ['GERMED','GO',4136.61,1,6648,15943],
-  ['LEGRAND','GO',275769.79,24,443201,1062874],['LEGRAND','PR',234201.87,27,376396,902663],
-  ['LEGRAND','RJ',225186.99,34,361908,867918],['LEGRAND','SP',755332.35,39,1213927,2911209],
-  ['MULTILAB','GO',257338.81,50,551440,991837],['MULTILAB','PR',228264.80,62,489139,879780],
-  ['MULTILAB','RJ',120509.59,49,258235,464469],['MULTILAB','SP',233775.98,45,500949,901021],
-  ['NATULAB','GO',231576.31,34,465220,287597],['NATULAB','PR',185215.16,14,372084,230020],
-  ['NATULAB','RJ',203095.96,48,408005,252227],['NATULAB','SP',346367.49,18,695828,430157],
-  ['NEOQ','GO',6473414.03,72,12484441,13616519],['NEOQ','PR',2681810.54,35,5172063,5641061],
-  ['NEOQ','RJ',1709004.61,30,3295937,3594810],['NEOQ','SP',5775081.64,19,11137657,12147610],
-  ['PHARLAB','GO',287391.87,91,1185491,538017],['PHARLAB','PR',109313.38,76,450918,204642],
-  ['PHARLAB','RJ',240660.66,99,992725,450533],['PHARLAB','SP',430971.33,100,1777757,806808],
-  ['SANDOZ','GO',917254.95,361,2211240,3123364],['SANDOZ','PR',40118.30,66,96714,136608],
-  ['SANDOZ','RJ',131344.77,115,316635,447245],['SANDOZ','SP',526496.24,51,1269232,1792783],
-];
-const ROWS_JUN=[
-  ['BIOLAB','GO',364467.20,196,878626,648772],['BIOLAB','PR',206915.32,969,498814,368321],
-  ['BIOLAB','RJ',131581.74,148,317206,234223],['BIOLAB','SP',420595.17,63,1013935,748683],
-  ['EMS','GO',36479.26,7,78170,100818],['EMS','PR',121711.53,58,260810,336374],
-  ['EMS','RJ',32787.55,66,70259,90615],['EMS','SP',130742.69,51,280163,361333],
-  ['EURO','GO',3563870.73,39,9164239,9808703],['EURO','PR',258461.61,45,664616,711354],
-  ['EURO','RJ',834248.47,58,2145210,2296070],['EURO','SP',2973508.96,12,7646166,8183873],
-  ['GEOLAB','GO',454512.19,36,1095699,692722],['GEOLAB','PR',198392.41,23,478267,302370],
-  ['GEOLAB','RJ',986658.80,51,2378552,1503768],['GEOLAB','SP',656872.54,33,1583532,1001140],
-  ['GERMED','GO',158144.59,1,254161,437064],
-  ['LEGRAND','GO',481260.96,24,773455,1330060],['LEGRAND','PR',331840.56,27,533315,917107],
-  ['LEGRAND','RJ',316266.05,34,508285,874064],['LEGRAND','SP',829466.15,39,1333071,2292394],
-  ['MULTILAB','GO',379288.07,50,812760,1048238],['MULTILAB','PR',200357.32,62,429337,553727],
-  ['MULTILAB','RJ',268284.07,49,574894,741456],['MULTILAB','SP',331710.93,45,710809,916749],
-  ['NATULAB','GO',233049.58,34,468180,240422],['NATULAB','PR',291527.14,14,585657,300750],
-  ['NATULAB','RJ',168667.44,48,338841,174003],['NATULAB','SP',469957.88,18,944112,484825],
-  ['NEOQ','GO',3590305.59,72,6924161,6478799],['NEOQ','PR',2860792.66,35,5517243,5162374],
-  ['NEOQ','RJ',2509195.63,30,4839163,4527908],['NEOQ','SP',10435382.47,19,20125380,18830918],
-  ['PHARLAB','GO',386808.44,91,1595585,588137],['PHARLAB','PR',96217.68,76,396898,146298],
-  ['PHARLAB','RJ',383405.14,99,1581546,582962],['PHARLAB','SP',448937.16,100,1851866,682603],
-  ['SANDOZ','GO',301866.98,361,727715,657044],['SANDOZ','PR',68334.58,66,164735,148737],
-  ['SANDOZ','RJ',509239.74,115,1227632,1108412],['SANDOZ','SP',1647433.79,51,3971492,3585807],
-];
+// [marca, empresa, valor, dde, limNec, limProp]
+const ROWS_MAI=[["BIOLAB","GO",187110,196,451069,953225],["BIOLAB","PR",14580,969,35149,74278],["BIOLAB","RJ",97838,148,235859,498431],["BIOLAB","SP",93055,63,224329,474066],["EMS","GO",33171,7,71080,127847],["EMS","PR",110768,58,237361,426925],["EMS","RJ",13524,66,28979,52123],["EMS","SP",102587,51,219829,395391],["EURO","GO",5407607,39,13905274,14109072],["EURO","PR",272044,45,699542,709795],["EURO","RJ",532947,58,1370434,1390519],["EURO","SP",1836106,12,4721415,4790613],["GEOLAB","GO",690288,36,1664088,1224391],["GEOLAB","PR",155225,23,374202,275328],["GEOLAB","RJ",679907,51,1639062,1205977],["GEOLAB","SP",447814,33,1079551,794304],["GERMED","GO",4137,1,6648,15943],["LEGRAND","GO",275770,24,443201,1062874],["LEGRAND","PR",234202,27,376396,902663],["LEGRAND","RJ",225187,34,361908,867918],["LEGRAND","SP",755332,39,1213927,2911209],["MULTILAB","GO",257339,50,551440,991837],["MULTILAB","PR",228265,62,489139,879780],["MULTILAB","RJ",120510,49,258235,464469],["MULTILAB","SP",233776,45,500949,901021],["NATULAB","GO",231576,34,465220,287597],["NATULAB","PR",185215,14,372084,230020],["NATULAB","RJ",203096,48,408005,252227],["NATULAB","SP",346367,18,695828,430157],["NEOQ","GO",6473414,72,12484441,13616519],["NEOQ","PR",2681811,35,5172063,5641061],["NEOQ","RJ",1709005,30,3295937,3594810],["NEOQ","SP",5775082,19,11137657,12147610],["PHARLAB","GO",287392,91,1185491,538017],["PHARLAB","PR",109313,76,450918,204642],["PHARLAB","RJ",240661,99,992725,450533],["PHARLAB","SP",430971,100,1777757,806808],["SANDOZ","GO",917255,361,2211240,3123364],["SANDOZ","PR",40118,66,96714,136608],["SANDOZ","RJ",131345,115,316635,447245],["SANDOZ","SP",526496,51,1269232,1792783]];
+const ROWS_JUN=[["BIOLAB","GO",364467,196,878626,648772],["BIOLAB","PR",206915,969,498814,368321],["BIOLAB","RJ",131582,148,317206,234223],["BIOLAB","SP",420595,63,1013935,748683],["EMS","GO",36479,7,78170,100818],["EMS","PR",121712,58,260810,336374],["EMS","RJ",32788,66,70259,90615],["EMS","SP",130743,51,280163,361333],["EURO","GO",3563871,39,9164239,9808703],["EURO","PR",258462,45,664616,711354],["EURO","RJ",834248,58,2145210,2296070],["EURO","SP",2973509,12,7646166,8183873],["GEOLAB","GO",454512,36,1095699,692722],["GEOLAB","PR",198392,23,478267,302370],["GEOLAB","RJ",986659,51,2378552,1503768],["GEOLAB","SP",656873,33,1583532,1001140],["GERMED","GO",158145,1,254161,437064],["LEGRAND","GO",481261,24,773455,1330060],["LEGRAND","PR",331841,27,533315,917107],["LEGRAND","RJ",316266,34,508285,874064],["LEGRAND","SP",829466,39,1333071,2292394],["MULTILAB","GO",379288,50,812760,1048238],["MULTILAB","PR",200357,62,429337,553727],["MULTILAB","RJ",268284,49,574894,741456],["MULTILAB","SP",331711,45,710809,916749],["NATULAB","GO",233050,34,468180,240422],["NATULAB","PR",291527,14,585657,300750],["NATULAB","RJ",168667,48,338841,174003],["NATULAB","SP",469958,18,944112,484825],["NEOQ","GO",3590306,72,6924161,6478799],["NEOQ","PR",2860793,35,5517243,5162374],["NEOQ","RJ",2509196,30,4839163,4527908],["NEOQ","SP",10435382,19,20125380,18830918],["PHARLAB","GO",386808,91,1595585,588137],["PHARLAB","PR",96218,76,396898,146298],["PHARLAB","RJ",383405,99,1581546,582962],["PHARLAB","SP",448937,100,1851866,682603],["SANDOZ","GO",301867,361,727715,657044],["SANDOZ","PR",68335,66,164735,148737],["SANDOZ","RJ",509240,115,1227632,1108412],["SANDOZ","SP",1647434,51,3971492,3585807]];
+// marca -> [lead(d), estoque total(d), estoque disponivel(d)]
+const IND={NEOQ:[7,36,29],EURO:[15,54,39],GEOLAB:[7,64,57],PHARLAB:[7,64,57],SANDOZ:[7,64,57],BIOLAB:[7,64,57],MULTILAB:[7,57,50],NATULAB:[7,54,47],EMS:[7,57,50],GERMED:[7,43,36]};
 function mapR(a){return a.map(r=>({m:r[0],e:r[1],venda:r[2],dde:r[3],limNec:r[4],limProp:r[5]}));}
 const DATA={mai:mapR(ROWS_MAI),jun:mapR(ROWS_JUN)};
 const DDE_NEC=50;
@@ -192,7 +152,7 @@ const BRL0=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
 const MI=v=>(v/1e6).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
 const PC=v=>(v*100).toFixed(0)+'%';
 Chart.defaults.color='#93a4b5';Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";Chart.defaults.borderColor='rgba(255,255,255,.06)';
-let charts={}, fPer='mai', fEmp='Todas', sortK='vord', sortDir=1;
+let charts={}, fPer='jun', fEmp='Todas', sortK='vord', sortDir=1;
 
 function base(){return DATA[fPer];}
 function rowsF(){return base().filter(r=>fEmp==='Todas'||r.e===fEmp);}
@@ -203,6 +163,7 @@ function cobOf(name){const rs=base().filter(r=>r.m===name);const n=rs.reduce((s,
 const cobFaixa=c=>c>=1.15?'Folga':(c>=1?'Atenção':'Insuficiente');
 const cobCls=c=>c>=1.15?'pos':(c>=1?'warn':'neg');
 const cobColor=c=>c>=1.15?'#2ecc71':(c>=1?'#ffb020':'#ff5d5d');
+const indOf=m=>IND[m]||null;
 function veredito(r){
   const f=ddeFaixa(r.dde), ci=cobOf(r.m)<1;
   if(f==='Excesso') return {t:'Excesso de estoque',cls:'exc',ord:5};
@@ -212,13 +173,11 @@ function veredito(r){
   return {t:'OK',cls:'pos',ord:4};
 }
 
-// chips período
 const chipsPer=document.getElementById('chipsPer');
 [['Maio (realizado)','mai'],['Junho (meta)','jun']].forEach(([lbl,v])=>{
   const c=document.createElement('div');c.className='chip'+(v===fPer?' active':'');c.textContent=lbl;c.dataset.v=v;
   c.onclick=()=>{fPer=v;render();};chipsPer.appendChild(c);
 });
-// chips empresa
 const chipsEmp=document.getElementById('chipsEmp');
 ['Todas','GO','PR','RJ','SP'].forEach(e=>{
   const c=document.createElement('div');c.className='chip'+(e==='Todas'?' active':'');c.textContent=e;c.dataset.v=e;
@@ -233,7 +192,7 @@ function render(){
   document.getElementById('hInsScope').textContent='— '+scope;
   document.getElementById('hVal').textContent= fPer==='jun'?'Meta Junho':'Venda Maio';
   document.getElementById('hLim').textContent= '2. Limite de compra por marca — '+(fPer==='jun'?'base meta de junho':'base maio');
-  document.getElementById('capCob').textContent='linha = 100% · base '+(fPer==='jun'?'meta de junho':'venda de maio')+' · abaixo de 100% o limite não cobre a compra (risco)';
+  document.getElementById('capCob').textContent='linha = 100% · base '+(fPer==='jun'?'meta de junho':'venda de maio')+' · abaixo de 100% o limite não cobre a compra';
   const rs=rowsF();
 
   const faixas={'Crítico':0,'Baixo':0,'Adequado':0,'Excesso':0};
@@ -242,27 +201,32 @@ function render(){
   const marcasSet=[...new Set(rs.map(r=>r.m))];
   const marcasInsuf=marcasSet.filter(m=>cobOf(m)<1);
   const riscoAlto=rs.filter(r=>veredito(r).t==='Risco alto').length;
+  const estBaixo=marcasSet.filter(m=>{const x=indOf(m);return x&&x[2]!=null&&x[2]<DDE_NEC;});
 
   document.getElementById('kpis').innerHTML=`
     <div class="kpi"><div class="lbl">Itens analisados</div><div class="val">${rs.length}</div><div class="delta">${fEmp==='Todas'?'marca × empresa':'marcas em '+fEmp}</div></div>
     <div class="kpi"><div class="lbl">Estoque baixo/crítico</div><div class="val neg">${critBaixo}</div><div class="delta">DDE &lt; 50 dias</div></div>
-    <div class="kpi"><div class="lbl">Excesso de estoque</div><div class="val exc">${faixas['Excesso']}</div><div class="delta">DDE &gt; 100 dias</div></div>
     <div class="kpi"><div class="lbl">Marcas sem limite p/ comprar</div><div class="val neg">${marcasInsuf.length}</div><div class="delta">cobertura &lt; 100% (${PER_NAME[fPer].split(' ')[0]})</div></div>
+    <div class="kpi"><div class="lbl">Marcas est. disp &lt; 50d</div><div class="val warn">${estBaixo.length}</div><div class="delta">estoque disponível abaixo do ideal</div></div>
     <div class="kpi"><div class="lbl">Itens em risco alto</div><div class="val neg">${riscoAlto}</div><div class="delta">estoque baixo + limite curto</div></div>`;
 
+  // DDE doughnut
   if(charts.cDDE)charts.cDDE.destroy();
   charts.cDDE=new Chart(document.getElementById('cDDE'),{type:'doughnut',data:{
     labels:Object.keys(faixas),datasets:[{data:Object.values(faixas),backgroundColor:Object.keys(faixas).map(k=>ddeColor[k]),borderColor:'#18222e',borderWidth:2}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+c.parsed+' itens'}}}}});
 
-  const byM={};rs.forEach(r=>{(byM[r.m]=byM[r.m]||[]).push(r.dde);});
-  const Mdde=Object.entries(byM).map(([m,a])=>({m,dde:a.reduce((x,y)=>x+y,0)/a.length})).sort((a,b)=>a.dde-b.dde);
-  if(charts.cDDEmarca)charts.cDDEmarca.destroy();
-  charts.cDDEmarca=new Chart(document.getElementById('cDDEmarca'),{type:'bar',data:{labels:Mdde.map(x=>x.m),
-    datasets:[{data:Mdde.map(x=>Math.round(x.dde)),backgroundColor:Mdde.map(x=>ddeColor[ddeFaixa(x.dde)]),borderRadius:4}]},
-    options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.x+' dias de estoque'}}},
-      scales:{x:{grid:{color:ctx=>ctx.tick.value===50?'rgba(255,93,93,.6)':'rgba(255,255,255,.06)'},ticks:{callback:v=>v+'d'}}}}});
+  // estoque disponível por marca (dias) + lead
+  const em=marcasSet.map(m=>({m,ind:indOf(m)})).filter(x=>x.ind).sort((a,b)=>a.ind[2]-b.ind[2]);
+  if(charts.cEst)charts.cEst.destroy();
+  charts.cEst=new Chart(document.getElementById('cEst'),{type:'bar',data:{labels:em.map(x=>x.m),datasets:[
+    {label:'Disponível',data:em.map(x=>x.ind[2]),backgroundColor:em.map(x=>x.ind[2]<DDE_NEC?'#ffb020':'#2ecc71'),borderRadius:4},
+    {label:'Lead',data:em.map(x=>x.ind[0]),backgroundColor:'#3a4a5c',borderRadius:4},
+  ]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{position:'top'},
+    tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.x+'d'}}},
+    scales:{x:{stacked:false,grid:{color:ctx=>ctx.tick.value===50?'rgba(255,93,93,.6)':'rgba(255,255,255,.06)'},ticks:{callback:v=>v+'d'}}}}});
 
+  // cobertura
   const Mcob=marcasSet.map(m=>({m,cob:cobOf(m)})).sort((a,b)=>a.cob-b.cob);
   if(charts.cCob)charts.cCob.destroy();
   charts.cCob=new Chart(document.getElementById('cCob'),{type:'bar',data:{labels:Mcob.map(x=>x.m),
@@ -271,17 +235,20 @@ function render(){
       scales:{x:{suggestedMax:260,grid:{color:ctx=>ctx.tick.value===100?'rgba(255,93,93,.6)':'rgba(255,255,255,.06)'},ticks:{callback:v=>v+'%'}}}}});
 
   renderDet();
-  renderInsights(rs,faixas,marcasSet,marcasInsuf,scope);
+  renderInsights(rs,faixas,marcasSet,marcasInsuf,estBaixo,scope);
 }
 
 function renderDet(){
-  let rows=rowsF().map(r=>{const v=veredito(r);return {...r,cob:cobOf(r.m),vord:v.ord,vt:v.t,vcls:v.cls};});
-  rows.sort((a,b)=>{const va=a[sortK],vb=b[sortK];return (typeof va==='string'?va.localeCompare(vb):(va>vb?1:-1))*sortDir;});
+  let rows=rowsF().map(r=>{const v=veredito(r),ind=indOf(r.m);return {...r,cob:cobOf(r.m),vord:v.ord,vt:v.t,vcls:v.cls,lead:ind?ind[0]:null,estTot:ind?ind[1]:null,estDisp:ind?ind[2]:null};});
+  rows.sort((a,b)=>{const va=a[sortK],vb=b[sortK];if(va==null)return 1;if(vb==null)return -1;return (typeof va==='string'?va.localeCompare(vb):(va>vb?1:-1))*sortDir;});
   document.getElementById('tabDet').innerHTML=rows.map(r=>{
     const f=ddeFaixa(r.dde);
+    const ed=r.estDisp; const edCls=ed==null?'':(ed<r.lead?'neg':(ed<DDE_NEC?'warn':'pos'));
     return `<tr><td>${r.m}</td><td>${r.e}</td><td>${BRL0(r.venda)}</td>
       <td>${r.dde}d</td><td><span class="pill ${ddeCls[f]}">${f}</span></td>
       <td>${PC(r.cob)}</td><td><span class="pill ${cobCls(r.cob)}">${cobFaixa(r.cob)}</span></td>
+      <td>${r.lead!=null?r.lead+'d':'-'}</td><td>${r.estTot!=null?r.estTot+'d':'-'}</td>
+      <td>${ed!=null?'<span class="pill '+edCls+'">'+ed+'d</span>':'-'}</td>
       <td><span class="pill ${r.vcls}">${r.vt}</span></td></tr>`;}).join('');
 }
 document.querySelectorAll('thead th[data-k]').forEach(th=>{
@@ -289,7 +256,7 @@ document.querySelectorAll('thead th[data-k]').forEach(th=>{
 });
 
 function card(kind,tag,tagcls,title,body){return `<div class="ins ${kind}"><h4><span class="tag ${tagcls}">${tag}</span> ${title}</h4><p>${body}</p></div>`;}
-function renderInsights(rs,faixas,marcasSet,marcasInsuf,scope){
+function renderInsights(rs,faixas,marcasSet,marcasInsuf,estBaixo,scope){
   const out=[];
   const ra=rs.filter(r=>veredito(r).t==='Risco alto').sort((a,b)=>a.dde-b.dde);
   if(ra.length) out.push(card('alert','Risco alto','neg',`${ra.length} item(ns): estoque baixo E limite insuficiente`,
@@ -297,9 +264,8 @@ function renderInsights(rs,faixas,marcasSet,marcasInsuf,scope){
   const insuf=marcasInsuf.map(m=>({m,cob:cobOf(m)})).sort((a,b)=>a.cob-b.cob);
   if(insuf.length) out.push(card('alert','Limite','neg',`${insuf.length} marca(s) sem limite para a demanda de ${PER_NAME[fPer].split(' ')[0].toLowerCase()}`,
       `${insuf.map(x=>x.m+' ('+PC(x.cob)+')').join(', ')} — cobertura abaixo de 100%. A compra de reposição esbarra no limite da indústria.`));
-  const repor=rs.filter(r=>veredito(r).t==='Repor (há limite)').sort((a,b)=>a.dde-b.dde);
-  if(repor.length) out.push(card('watch','Reposição','warn',`${repor.length} item(ns) com estoque baixo mas limite OK`,
-      `Dá para repor já: ${repor.slice(0,5).map(r=>r.m+'/'+r.e+' ('+r.dde+'d)').join(', ')}.`));
+  if(estBaixo.length) out.push(card('watch','Estoque disponível','warn',`${estBaixo.length} marca(s) com estoque disponível < 50 dias`,
+      `${estBaixo.map(m=>m+' ('+indOf(m)[2]+'d)').join(', ')} — abaixo da cobertura ideal; lead de reposição de 7 a 15 dias. Programar compra com antecedência.`));
   const exc=rs.filter(r=>ddeFaixa(r.dde)==='Excesso').sort((a,b)=>b.dde-a.dde);
   if(exc.length) out.push(card('exc','Excesso','exc',`${exc.length} item(ns) com estoque acima de 100 dias`,
       `Capital parado / risco de validade: ${exc.slice(0,6).map(r=>r.m+'/'+r.e+' ('+r.dde+'d)').join(', ')}.`));
