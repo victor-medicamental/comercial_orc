@@ -98,8 +98,8 @@
       </div>
     </div>
     <div class="card">
-      <h3>Estoque disponível por marca (dias)</h3>
-      <div class="cap">marca consolidada · barra escura = lead de reposição</div>
+      <h3>DDE necessário × atual por marca (dias)</h3>
+      <div class="cap">DDE atual = média das empresas do recorte · necessário 40–50 por marca</div>
       <div class="chart-box"><canvas id="cEst"></canvas></div>
     </div>
   </div>
@@ -197,11 +197,13 @@ function render(){
     labels:Object.keys(faixas),datasets:[{data:Object.values(faixas),backgroundColor:Object.keys(faixas).map(k=>ddeColor[k]),borderColor:'#18222e',borderWidth:2}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+c.parsed+' itens'}}}}});
 
-  const em=marcasSet.map(m=>({m,...marcaInfo(m)})).filter(x=>x.estDisp!=null).sort((a,b)=>a.estDisp-b.estDisp);
+  const byMarca={};rs.forEach(r=>{(byMarca[r.m]=byMarca[r.m]||[]).push(r);});
+  const em=Object.entries(byMarca).map(([m,arr])=>{const at=Math.round(arr.reduce((s,x)=>s+(x.dde||0),0)/arr.length);return {m,nec:arr[0].ddeNec,at};}).sort((a,b)=>(a.at-a.nec)-(b.at-b.nec));
+  const atColor=(at,nec)=>at<nec*0.5?'#ff5d5d':(at<nec?'#ffb020':(at<=nec*2?'#2ecc71':'#7c5cff'));
   if(charts.cEst)charts.cEst.destroy();
   charts.cEst=new Chart(document.getElementById('cEst'),{type:'bar',data:{labels:em.map(x=>x.m),datasets:[
-    {label:'Disponível',data:em.map(x=>x.estDisp),backgroundColor:em.map(x=>x.estDisp<x.ddeNec?'#ffb020':'#2ecc71'),borderRadius:4},
-    {label:'Lead',data:em.map(x=>x.lead),backgroundColor:'#3a4a5c',borderRadius:4},
+    {label:'DDE atual',data:em.map(x=>x.at),backgroundColor:em.map(x=>atColor(x.at,x.nec)),borderRadius:4},
+    {label:'DDE necessário',data:em.map(x=>x.nec),backgroundColor:'#5a6b7d',borderRadius:4},
   ]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.x+'d'}}},
     scales:{x:{ticks:{callback:v=>v+'d'}}}}});
 
