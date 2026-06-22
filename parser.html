@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>parser</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body style="font-family:monospace;background:#111;color:#ddd">
+<input type="file" id="f">
+<div id="status">aguardando arquivo…</div>
+<pre id="out"></pre>
+<script>
+window.__parsed=null;
+document.getElementById('f').addEventListener('change',function(e){
+  const file=e.target.files[0];
+  const rd=new FileReader();
+  rd.onload=function(ev){
+    const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'});
+    const res={};
+    wb.SheetNames.forEach(n=>{res[n]=XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:true,defval:null});});
+    window.__parsed=res;
+    document.getElementById('status').textContent='OK: '+wb.SheetNames.join(' | ');
+  };
+  rd.readAsArrayBuffer(file);
+});
+</script>
+</body></html>
