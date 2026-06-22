@@ -83,6 +83,11 @@
     <div class="sub">Temos estoque hoje? O limite deixa comprar o suficiente? · base: meta de junho</div>
   </header>
 
+  <div class="filterbar" style="margin-bottom:14px">
+    <div class="fgroup"><span class="lbl">Visão</span><div class="chips" id="chipsView"></div></div>
+  </div>
+
+  <div id="viewAnalise">
   <div class="filterbar">
     <div class="fgroup"><span class="lbl">Empresa</span><div class="chips" id="chipsEmp"></div></div>
     <span class="scope" id="scopeTxt"></span>
@@ -135,14 +140,17 @@
     </div>
   </div>
 
-  <h2>4. Tabela completa — ANALISE LIMITES IND JUNHO</h2>
+  <h2>Insights <span id="hInsScope" style="color:var(--muted);font-weight:400;font-size:14px"></span></h2>
+  <div class="insights" id="insights"></div>
+  </div><!-- /viewAnalise -->
+
+  <div id="viewTabela" style="display:none">
+  <h2>Tabela completa — ANALISE LIMITES IND JUNHO</h2>
   <div class="tblinfo">Passe o mouse sobre os cabeçalhos <span class="help">tracejados</span> para ver o cálculo. Use os campos abaixo de cada coluna para filtrar. <span id="fullCount"></span></div>
   <div class="fulltbl-wrap">
     <table id="full"><thead id="fullHead"></thead><tbody id="fullBody"></tbody></table>
   </div>
-
-  <h2>Insights <span id="hInsScope" style="color:var(--muted);font-weight:400;font-size:14px"></span></h2>
-  <div class="insights" id="insights"></div>
+  </div><!-- /viewTabela -->
 
   <footer>
     Fonte: aba ANALISE LIMITES IND JUNHO. Cobertura = Limite Prop. Compartilhado ÷ Necessário. DDE/estoque/lead em dias. Gerado em 17/06/2026.
@@ -304,6 +312,18 @@ function renderFull(){
   document.getElementById('fullBody').innerHTML=rowsHtml.join('');
   document.getElementById('fullCount').textContent=shown+' de '+RAW.length+' linhas';
 }
+
+// ===== Alternância de visão: Análise | Tabela completa =====
+const chipsView=document.getElementById('chipsView');
+[['Análise','analise'],['Tabela completa','tabela']].forEach(([lbl,v],i)=>{
+  const c=document.createElement('div');c.className='chip'+(i===0?' active':'');c.textContent=lbl;
+  c.onclick=()=>{
+    document.querySelectorAll('#chipsView .chip').forEach(x=>x.classList.toggle('active',x===c));
+    document.getElementById('viewAnalise').style.display=(v==='analise')?'':'none';
+    document.getElementById('viewTabela').style.display=(v==='tabela')?'':'none';
+  };
+  chipsView.appendChild(c);
+});
 
 buildFullHead();
 renderFull();
