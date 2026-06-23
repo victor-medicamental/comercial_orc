@@ -106,10 +106,10 @@
 
 <script>
 const D=[
-  {e:'FARMA GO', venda:18212365.95, ticket:1067.95, pedidos:17054, metaJun:18475340.23, pedProjJun:17300},
+  {e:'FARMA GO', venda:18212365.95, ticket:1067.95, pedidos:17054, metaJun:18043812.23, pedProjJun:16896},
   {e:'FARMA PR', venda:6053873.54,  ticket:286.27,  pedidos:21147, metaJun:6840588.40,  pedProjJun:23896},
   {e:'FARMA RJ', venda:5810336.15,  ticket:805.46,  pedidos:7214,  metaJun:8559414.32,  pedProjJun:10627},
-  {e:'FARMA SP', venda:14858743.88, ticket:767.07,  pedidos:19371, metaJun:19411889.42, pedProjJun:25307},
+  {e:'FARMA SP', venda:14858743.88, ticket:767.07,  pedidos:19371, metaJun:18161761.62, pedProjJun:23677},
 ];
 // Totais conforme "Total Geral" do relatório (pedidos do total incluem empresas além das 4 listadas)
 const TOT={venda:44935319.52, ticket:650.80, pedidos:69046, metaJun:51605576.56, pedProjJun:79296};
@@ -161,7 +161,7 @@ function render(){
     <td>${d.e}</td><td>${BRL0(vMai(d.venda))}</td><td>${BRL(d.ticket)}</td>
     <td>${modo==='dia'?NUM1(vMai(d.pedidos)):NUM(d.pedidos)}</td>
     <td>${BRL0(vJun(d.metaJun))}</td>
-    <td>${modo==='dia'?NUM1(vJun(d.pedProjJun)):NUM(d.pedProjJun)}</td></tr>`;});
+    <td>${modo==='dia'?NUM1(Math.max(vJun(d.pedProjJun),vMai(d.pedidos))):NUM(d.pedProjJun)}</td></tr>`;});
   document.getElementById('tabFoot').innerHTML=`<tr>
     <td>Total Geral</td><td>${BRL0(vMai(TOT.venda))}</td><td>${BRL(TOT.ticket)}</td>
     <td>${modo==='dia'?NUM1(vMai(TOT.pedidos)):NUM(TOT.pedidos)}</td>
@@ -186,7 +186,7 @@ function render(){
     {legend:false,tip:c=>BRL(c.parsed.y),ytick:v=>'R$ '+v});
   draw('cPedidos',{labels,datasets:[
     {label:'Maio',data:D.map(d=>vMai(d.pedidos)),backgroundColor:'#3ea6ff',borderRadius:5},
-    {label:'Junho (proj.)',data:D.map(d=>vJun(d.pedProjJun)),backgroundColor:'#7c5cff',borderRadius:5},
+    {label:'Junho (proj.)',data:D.map(d=>{const v=vJun(d.pedProjJun);return modo==='dia'?Math.max(v,vMai(d.pedidos)):v;}),backgroundColor:'#7c5cff',borderRadius:5},
   ]},{legend:true,tip:c=>c.dataset.label+': '+(modo==='dia'?NUM1(c.parsed.y):NUM(c.parsed.y)),ytick:v=>NUM(v)});
   draw('cMeta',{labels,datasets:[
     {label:'Venda Maio',data:D.map(d=>vMai(d.venda)/sc),backgroundColor:'#5a6b7d',borderRadius:5},
